@@ -27,7 +27,7 @@ func (s *Service) GetExerciseProgress(ctx context.Context, exerciseID, userID st
 
 	rows, err := s.db.Query(ctx, `
 		SELECT
-			s.date,
+			s.date::text,
 			MAX(ss.weight) AS max_weight,
 			SUM(ss.reps) AS total_reps,
 			COUNT(ss.id) AS sets

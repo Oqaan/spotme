@@ -32,8 +32,12 @@ func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, er
 	var sessions []Session
 	for rows.Next() {
 		var s Session
-		if err := rows.Scan(&s.ID, &s.UserID, &s.TemplateID, &s.Date, &s.Notes); err != nil {
+		var templateID *string
+		if err := rows.Scan(&s.ID, &s.UserID, &templateID, &s.Date, &s.Notes); err != nil {
 			return nil, err
+		}
+		if templateID != nil {
+			s.TemplateID = *templateID
 		}
 		sessions = append(sessions, s)
 	}
@@ -42,13 +46,17 @@ func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, er
 
 func (s *Service) GetSession(ctx context.Context, id, userID string) (*Session, error) {
 	var sess Session
+	var templateID *string
 	err := s.db.QueryRow(ctx, `
-		SELECT id, user_id, template_id, date::text, notes
-		FROM sessions
-		WHERE id = $1 AND user_id = $2
-	`, id, userID).Scan(&sess.ID, &sess.UserID, &sess.TemplateID, &sess.Date, &sess.Notes)
+    SELECT id, user_id, template_id, date::text, notes
+    FROM sessions
+    WHERE id = $1 AND user_id = $2
+`, id, userID).Scan(&sess.ID, &sess.UserID, &templateID, &sess.Date, &sess.Notes)
 	if err != nil {
 		return nil, ErrNotFound
+	}
+	if templateID != nil {
+		sess.TemplateID = *templateID
 	}
 
 	rows, err := s.db.Query(ctx, `

@@ -19,7 +19,7 @@ func NewService(db *pgxpool.Pool) *Service {
 
 func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, error) {
 	rows, err := s.db.Query(ctx, `
-		SELECT id, user_id, template_id, date, notes
+		SELECT id, user_id, template_id, date::text, notes
 		FROM sessions
 		WHERE user_id = $1
 		ORDER BY date DESC
@@ -43,7 +43,7 @@ func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, er
 func (s *Service) GetSession(ctx context.Context, id, userID string) (*Session, error) {
 	var sess Session
 	err := s.db.QueryRow(ctx, `
-		SELECT id, user_id, template_id, date, notes
+		SELECT id, user_id, template_id, date::text, notes
 		FROM sessions
 		WHERE id = $1 AND user_id = $2
 	`, id, userID).Scan(&sess.ID, &sess.UserID, &sess.TemplateID, &sess.Date, &sess.Notes)
@@ -78,7 +78,7 @@ func (s *Service) CreateSession(ctx context.Context, userID string, req CreateSe
 	err := s.db.QueryRow(ctx, `
 		INSERT INTO sessions (user_id, template_id, date, notes)
 		VALUES ($1, $2, $3, $4)
-		RETURNING id, user_id, template_id, date, notes
+		RETURNING id, user_id, template_id, date::text, notes
 	`, userID, req.TemplateID, req.Date, req.Notes).Scan(&sess.ID, &sess.UserID, &sess.TemplateID, &sess.Date, &sess.Notes)
 	if err != nil {
 		return nil, err

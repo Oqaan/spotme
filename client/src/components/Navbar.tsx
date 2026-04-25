@@ -2,7 +2,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { isLoggedIn, logout, name } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,7 +33,6 @@ export default function Navbar() {
             {navLink("/history", "History")}
             {navLink("/progress", "Progress")}
             {navLink("/friends", "Friends")}
-            <span className="text-gray-500 text-sm">Hey, {name}!</span>
             <button
               onClick={handleLogout}
               className="text-gray-400 hover:text-red-400 text-sm cursor-pointer"

@@ -142,3 +142,17 @@ export const acceptFriendRequest = (id: string) =>
   api.put(`/api/friends/${id}/accept`);
 
 export const getFeed = () => api.get<FeedItem[]>("/api/feed");
+
+// Account
+export const getAccount = () =>
+  api.get<{ id: string; email: string; name: string }>("/api/account");
+
+export const updateName = (name: string) =>
+  api.put("/api/account/name", { name });
+
+export const updatePassword = (
+  current_password: string,
+  new_password: string,
+) => api.put("/api/account/password", { current_password, new_password });
+
+export const deleteAccount = () => api.delete("/api/account");

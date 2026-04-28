@@ -16,6 +16,7 @@ import (
 	"github.com/itsYuuuka/spotme/internal/middleware"
 	"github.com/itsYuuuka/spotme/internal/progress"
 	"github.com/itsYuuuka/spotme/internal/session"
+	"github.com/itsYuuuka/spotme/internal/user"
 	"github.com/itsYuuuka/spotme/internal/workout"
 )
 
@@ -30,6 +31,7 @@ func main() {
 	sessionSvc := session.NewService(pool)
 	progressSvc := progress.NewService(pool)
 	friendsSvc := friends.NewService(pool)
+	userSvc := user.NewService(pool)
 
 	// Handlers
 	authH := auth.NewHandler(authSvc)
@@ -37,6 +39,7 @@ func main() {
 	sessionH := session.NewHandler(sessionSvc)
 	progressH := progress.NewHandler(progressSvc)
 	friendsH := friends.NewHandler(friendsSvc)
+	userH := user.NewHandler(userSvc)
 
 	r := chi.NewRouter()
 	r.Use(chimiddleware.Logger)
@@ -88,6 +91,12 @@ func main() {
 		r.Post("/api/friends/request", friendsH.SendRequest)
 		r.Put("/api/friends/{id}/accept", friendsH.AcceptRequest)
 		r.Get("/api/feed", friendsH.GetFeed)
+
+		// Account
+		r.Get("/api/account", userH.GetUser)
+		r.Put("/api/account/name", userH.UpdateName)
+		r.Put("/api/account/password", userH.UpdatePassword)
+		r.Delete("/api/account", userH.DeleteAccount)
 	})
 
 	addr := fmt.Sprintf(":%s", cfg.Port)

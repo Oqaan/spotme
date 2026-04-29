@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getSession, getTemplate, addSet, deleteSet } from "../api";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  getSession,
+  getTemplate,
+  addSet,
+  deleteSet,
+  deleteSession,
+} from "../api";
 import type { Session, SessionSet, Exercise } from "../types";
 import { formatDate } from "../utils";
 
@@ -9,6 +15,9 @@ export default function SessionPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [templateExercises, setTemplateExercises] = useState<Exercise[]>([]);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isLive = searchParams.get("mode") === "live";
 
   // Per exercise input state
   const [inputs, setInputs] = useState<
@@ -73,6 +82,17 @@ export default function SessionPage() {
     }
   };
 
+  const handleGoBack = async () => {
+    if (!id) return;
+    try {
+      await deleteSession(id);
+      localStorage.removeItem("liveSessionId");
+    } catch {
+      console.error("Failed to delete session");
+    }
+    navigate("/dashboard");
+  };
+
   const updateInput = (
     exerciseId: string,
     field: "reps" | "weight",
@@ -117,9 +137,21 @@ export default function SessionPage() {
     <div className="min-h-screen bg-gray-900 text-white p-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
-          <Link to="/dashboard" className="text-gray-400 hover:text-white">
-            ← Dashboard
-          </Link>
+          {isLive ? (
+            <button
+              onClick={handleGoBack}
+              className="text-gray-400 hover:text-white cursor-pointer"
+            >
+              ← Discard
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/history")}
+              className="text-gray-400 hover:text-white cursor-pointer"
+            >
+              ← History
+            </button>
+          )}
           <div>
             <h1 className="text-xl font-bold">Today's Workout</h1>
             <p className="text-sm text-gray-400">{formatDate(session.date)}</p>
@@ -154,59 +186,63 @@ export default function SessionPage() {
                         <span className="font-bold">
                           {set.weight}kg × {set.reps} reps
                         </span>
-                        <button
-                          onClick={() => handleDeleteSet(set.id)}
-                          className="text-red-400 hover:text-red-300 cursor-pointer"
-                        >
-                          ✕
-                        </button>
+                        {isLive && (
+                          <button
+                            onClick={() => handleDeleteSet(set.id)}
+                            className="text-red-400 hover:text-red-300 cursor-pointer"
+                          >
+                            ✕
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
 
                 {/* Input for next set */}
-                <div className="flex gap-2 items-end">
-                  <div className="flex-1">
-                    <label className="block text-xs text-gray-400 mb-1">
-                      Weight (kg)
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={input.weight}
-                      onChange={(e) =>
-                        updateInput(exercise.id, "weight", e.target.value)
-                      }
-                      onFocus={(e) => e.target.select()}
-                      className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
-                      min={0}
-                      step={0.5}
-                    />
+                {isLive && (
+                  <div className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-400 mb-1">
+                        Weight (kg)
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        value={input.weight}
+                        onChange={(e) =>
+                          updateInput(exercise.id, "weight", e.target.value)
+                        }
+                        onFocus={(e) => e.target.select()}
+                        className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
+                        min={0}
+                        step={0.5}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-xs text-gray-400 mb-1">
+                        Reps
+                      </label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={input.reps}
+                        onChange={(e) =>
+                          updateInput(exercise.id, "reps", e.target.value)
+                        }
+                        onFocus={(e) => e.target.select()}
+                        className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
+                        min={1}
+                      />
+                    </div>
+                    <button
+                      onClick={() => handleLogSet(exercise.id)}
+                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+                    >
+                      + Set
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <label className="block text-xs text-gray-400 mb-1">
-                      Reps
-                    </label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={input.reps}
-                      onChange={(e) =>
-                        updateInput(exercise.id, "reps", e.target.value)
-                      }
-                      onFocus={(e) => e.target.select()}
-                      className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
-                      min={1}
-                    />
-                  </div>
-                  <button
-                    onClick={() => handleLogSet(exercise.id)}
-                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
-                  >
-                    + Set
-                  </button>
-                </div>
+                )}
               </div>
             );
           })}
@@ -222,14 +258,19 @@ export default function SessionPage() {
           </div>
         )}
       </div>
-      <div className="mt-8 pb-6">
-        <Link
-          to="/dashboard"
-          className="block w-full py-3 bg-green-600 hover:bg-green-700 rounded font-bold text-center cursor-pointer"
-        >
-          Finish Workout ✓
-        </Link>
-      </div>
+      {isLive && (
+        <div className="mt-8 pb-6">
+          <button
+            onClick={() => {
+              localStorage.removeItem("liveSessionId");
+              navigate("/dashboard");
+            }}
+            className="block w-full py-3 bg-green-600 hover:bg-green-700 rounded font-bold text-center cursor-pointer"
+          >
+            Finish Workout ✓
+          </button>
+        </div>
+      )}
     </div>
   );
 }

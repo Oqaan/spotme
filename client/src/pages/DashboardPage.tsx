@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { getTemplates, getFeed, createSession, getFriends } from "../api";
+import {
+  getTemplates,
+  getFeed,
+  createSession,
+  getFriends,
+  deleteSession,
+} from "../api";
 import type { Template, FeedItem, Friendship } from "../types";
 import { formatDate } from "../utils";
 
@@ -14,6 +20,12 @@ export default function DashboardPage() {
   const [friends, setFriends] = useState<Friendship[]>([]);
 
   useEffect(() => {
+    const liveSessionId = localStorage.getItem("liveSessionId");
+    if (liveSessionId) {
+      deleteSession(liveSessionId).catch(() => {});
+      localStorage.removeItem("liveSessionId");
+    }
+
     const fetchData = async () => {
       try {
         const [templatesRes, feedRes, friendsRes] = await Promise.all([
@@ -41,7 +53,8 @@ export default function DashboardPage() {
         date: today,
         notes: "",
       });
-      navigate(`/session/${res.data.id}`);
+      localStorage.setItem("liveSessionId", res.data.id);
+      navigate(`/session/${res.data.id}?mode=live`);
     } catch {
       console.error("Failed to start session");
     }

@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
+  updateDisplayName: (name: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -42,9 +43,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("name");
   };
 
+  const updateDisplayName = (newName: string) => {
+    setName(newName);
+    localStorage.setItem("name", newName);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ token, name, isLoggedIn: !!token, login, register, logout }}
+      value={{
+        token,
+        name,
+        isLoggedIn: !!token,
+        login,
+        register,
+        logout,
+        updateDisplayName,
+      }}
     >
       {children}
     </AuthContext.Provider>

@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { getAccount, updateName, updatePassword, deleteAccount } from "../api";
 
 export default function SettingsPage() {
-  const { logout } = useAuth();
+  const { logout, updateDisplayName } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -30,6 +30,7 @@ export default function SettingsPage() {
     setNameSuccess("");
     try {
       await updateName(newName);
+      updateDisplayName(newName);
       setNewName("");
       setNameSuccess("Name updated!");
     } catch {

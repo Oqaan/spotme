@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getTemplate, addExercise, deleteExercise } from "../api";
+import {
+  getTemplate,
+  addExercise,
+  deleteExercise,
+  updateExercise,
+} from "../api";
 import type { Exercise, Template } from "../types";
 import {
   DndContext,
@@ -93,22 +98,33 @@ export default function TemplatePage() {
     }),
   );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id || !template) return;
+    if (!over || active.id === over.id || !template || !id) return;
 
     const exercises = template.exercises ?? [];
     const oldIndex = exercises.findIndex((e) => e.id === active.id);
     const newIndex = exercises.findIndex((e) => e.id === over.id);
+    const reordered = arrayMove(exercises, oldIndex, newIndex);
 
-    setTemplate((prev) =>
-      prev
-        ? {
-            ...prev,
-            exercises: arrayMove(prev.exercises ?? [], oldIndex, newIndex),
-          }
-        : prev,
-    );
+    setTemplate((prev) => (prev ? { ...prev, exercises: reordered } : prev));
+
+    try {
+      await Promise.all(
+        reordered.map((exercise, index) =>
+          updateExercise(id, exercise.id, {
+            name: exercise.name,
+            target_sets: exercise.target_sets,
+            target_reps: exercise.target_reps,
+            notes: exercise.notes,
+            is_timed: exercise.is_timed,
+            order_index: index,
+          }),
+        ),
+      );
+    } catch {
+      console.error("Failed to save exercise order");
+    }
   };
 
   useEffect(() => {

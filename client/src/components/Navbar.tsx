@@ -44,6 +44,7 @@ export default function Navbar() {
               {navLink("/history", "History")}
               {navLink("/progress", "Progress")}
               {navLink("/friends", "Friends")}
+              {navLink("/settings", "Settings")}
               <button
                 onClick={handleLogout}
                 className="text-gray-400 hover:text-red-400 text-sm cursor-pointer"
@@ -71,6 +72,7 @@ export default function Navbar() {
           {navLink("/history", "History")}
           {navLink("/progress", "Progress")}
           {navLink("/friends", "Friends")}
+          {navLink("/settings", "Settings")}
           <button
             onClick={handleLogout}
             className="text-left px-4 py-2 text-gray-400 hover:text-red-400 text-sm cursor-pointer"

@@ -11,6 +11,7 @@ import HistoryPage from "./pages/HistoryPage";
 import ProgressPage from "./pages/ProgressPage";
 import FriendsPage from "./pages/FriendsPage";
 import Navbar from "./components/Navbar";
+import SettingsPage from "./pages/SettingsPage";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isLoggedIn } = useAuth();
@@ -78,6 +79,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <FriendsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <SettingsPage />
               </ProtectedRoute>
             }
           />

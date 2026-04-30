@@ -78,8 +78,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="bg-gray-900 text-white h-full flex flex-col">
+      <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto p-6">
         <h1 className="text-2xl font-bold mb-2">Hey, {name}!</h1>
         <p className="text-gray-400 mb-8">Ready to train today?</p>
 

@@ -29,7 +29,7 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="bg-gray-800 border-b border-gray-700 px-6 py-4">
+    <nav className="relative bg-gray-800 border-b border-gray-700 px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
         <Link to="/dashboard" className="text-xl font-bold text-orange-400">
           SpotMe
@@ -66,20 +66,26 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {isLoggedIn && menuOpen && (
-        <div className="md:hidden mt-4 flex flex-col gap-1">
-          {navLink("/dashboard", "Dashboard")}
-          {navLink("/templates", "Templates")}
-          {navLink("/history", "History")}
-          {navLink("/progress", "Progress")}
-          {navLink("/friends", "Friends")}
-          {navLink("/settings", "Settings")}
-          <button
-            onClick={handleLogout}
-            className="text-left px-4 py-2 text-gray-400 hover:text-red-400 text-sm cursor-pointer"
-          >
-            Logout
-          </button>
-        </div>
+        <>
+          <div
+            className="md:hidden fixed inset-0 z-30"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className="md:hidden absolute top-full left-0 right-0 bg-gray-800 border-b border-gray-700 flex flex-col gap-1 px-6 py-2 z-40">
+            {navLink("/dashboard", "Dashboard")}
+            {navLink("/templates", "Templates")}
+            {navLink("/history", "History")}
+            {navLink("/progress", "Progress")}
+            {navLink("/friends", "Friends")}
+            {navLink("/settings", "Settings")}
+            <button
+              onClick={handleLogout}
+              className="text-left px-4 py-2 text-gray-400 hover:text-red-400 text-sm cursor-pointer"
+            >
+              Logout
+            </button>
+          </div>
+        </>
       )}
     </nav>
   );

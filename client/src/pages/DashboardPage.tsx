@@ -102,6 +102,16 @@ export default function DashboardPage() {
                         {template.day_of_week}
                       </p>
                     )}
+                    {template.exercises && template.exercises.length > 0 && (
+                      <p className="text-sm text-gray-500 mt-1">
+                        {template.exercises
+                          .slice(0, 3)
+                          .map((e) => e.name)
+                          .join(", ")}
+                        {template.exercises.length > 3 &&
+                          ` & ${template.exercises.length - 3} more`}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={() => handleStartSession(template.id)}

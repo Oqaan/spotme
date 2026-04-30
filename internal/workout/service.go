@@ -37,7 +37,31 @@ func (s *Service) GetTemplates(ctx context.Context, userID string) ([]Template, 
 		}
 		templates = append(templates, t)
 	}
-	return templates, rows.Err()
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Fetch exercises for each template
+	for i, t := range templates {
+		exRows, err := s.db.Query(ctx, `
+			SELECT id, template_id, name, target_sets, target_reps, notes, is_timed, order_index
+			FROM template_exercises
+			WHERE template_id = $1
+			ORDER BY order_index
+		`, t.ID)
+		if err != nil {
+			return nil, err
+		}
+		defer exRows.Close()
+		for exRows.Next() {
+			var e Exercise
+			if err := exRows.Scan(&e.ID, &e.TemplateID, &e.Name, &e.TargetSets, &e.TargetReps, &e.Notes, &e.IsTimed, &e.OrderIndex); err != nil {
+				return nil, err
+			}
+			templates[i].Exercises = append(templates[i].Exercises, e)
+		}
+	}
+	return templates, nil
 }
 
 func (s *Service) GetTemplate(ctx context.Context, id, userID string) (*Template, error) {

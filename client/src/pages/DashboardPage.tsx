@@ -18,6 +18,9 @@ export default function DashboardPage() {
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<Friendship[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null,
+  );
 
   useEffect(() => {
     const liveSessionId = localStorage.getItem("liveSessionId");
@@ -44,6 +47,20 @@ export default function DashboardPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (selectedTemplate) {
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+    };
+  }, [selectedTemplate]);
 
   const handleStartSession = async (templateId: string) => {
     try {
@@ -93,32 +110,25 @@ export default function DashboardPage() {
               {templates.map((template) => (
                 <div
                   key={template.id}
-                  className="bg-gray-800 rounded-lg p-3 flex flex-col gap-2 h-44"
+                  onClick={() => setSelectedTemplate(template)}
+                  className="bg-gray-800 rounded-lg p-3 flex flex-col gap-2 h-33 cursor-pointer hover:bg-gray-700 border border-gray-700"
                 >
-                  <div>
-                    <p className="font-bold">{template.name}</p>
-                    {template.day_of_week && (
-                      <p className="text-xs text-gray-400">
-                        {template.day_of_week}
-                      </p>
-                    )}
-                    {template.exercises && template.exercises.length > 0 && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {template.exercises
-                          .slice(0, 3)
-                          .map((e) => e.name)
-                          .join(", ")}
-                        {template.exercises.length > 3 &&
-                          ` & ${template.exercises.length - 3} more`}
-                      </p>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => handleStartSession(template.id)}
-                    className="mt-auto w-full py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
-                  >
-                    Start Workout
-                  </button>
+                  <p className="font-bold">{template.name}</p>
+                  {template.day_of_week && (
+                    <p className="text-xs text-gray-400">
+                      {template.day_of_week}
+                    </p>
+                  )}
+                  {template.exercises && template.exercises.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {template.exercises
+                        .slice(0, 3)
+                        .map((e) => e.name)
+                        .join(", ")}
+                      {template.exercises.length > 3 &&
+                        ` & ${template.exercises.length - 3} more`}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -168,6 +178,59 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+      {selectedTemplate && (
+        <div
+          className="fixed inset-0 bg-black/60 flex items-end z-50"
+          onClick={() => setSelectedTemplate(null)}
+        >
+          <div
+            className="bg-gray-800 w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold">{selectedTemplate.name}</h2>
+              <button
+                onClick={() => setSelectedTemplate(null)}
+                className="text-gray-400 hover:text-white cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {selectedTemplate.day_of_week && (
+              <p className="text-sm text-gray-400 mb-4">
+                {selectedTemplate.day_of_week}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-2 mb-6">
+              {selectedTemplate.exercises?.map((exercise, index) => (
+                <div
+                  key={exercise.id}
+                  className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 gap-2"
+                >
+                  <span className="text-xs font-medium">
+                    {index + 1}. {exercise.name}
+                  </span>
+                  <span className="text-xs text-gray-400 shrink-0">
+                    {exercise.target_sets} × {exercise.target_reps}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => {
+                setSelectedTemplate(null);
+                handleStartSession(selectedTemplate.id);
+              }}
+              className="w-full py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold cursor-pointer"
+            >
+              Start Workout
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

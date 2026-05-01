@@ -141,6 +141,8 @@ export const sendFriendRequest = (friendEmail: string) =>
 export const acceptFriendRequest = (id: string) =>
   api.put(`/api/friends/${id}/accept`);
 
+export const deleteFriend = (id: string) => api.delete(`/api/friends/${id}`);
+
 export const getFeed = () => api.get<FeedItem[]>("/api/feed");
 
 // Account

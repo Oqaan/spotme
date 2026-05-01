@@ -23,7 +23,14 @@ func NewService(db *pgxpool.Pool) *Service {
 
 func (s *Service) GetFriends(ctx context.Context, userID string) ([]Friendship, error) {
 	rows, err := s.db.Query(ctx, `
-		SELECT f.id, f.user_id, f.friend_id, u.name, f.status, f.created_at::text
+		SELECT f.id, f.user_id, f.friend_id, u.name, f.status, f.created_at::text,
+			(SELECT s.date::text FROM sessions s
+			WHERE s.user_id = CASE
+				WHEN f.user_id = $1 THEN f.friend_id
+				ELSE f.user_id
+			END
+			ORDER BY s.created_at DESC
+			LIMIT 1) as last_workout
 		FROM friendships f
 		JOIN users u ON u.id = CASE
 			WHEN f.user_id = $1 THEN f.friend_id
@@ -40,7 +47,7 @@ func (s *Service) GetFriends(ctx context.Context, userID string) ([]Friendship, 
 	var friends []Friendship
 	for rows.Next() {
 		var f Friendship
-		if err := rows.Scan(&f.ID, &f.UserID, &f.FriendID, &f.FriendName, &f.Status, &f.CreatedAt); err != nil {
+		if err := rows.Scan(&f.ID, &f.UserID, &f.FriendID, &f.FriendName, &f.Status, &f.CreatedAt, &f.LastWorkout); err != nil {
 			return nil, err
 		}
 		friends = append(friends, f)
@@ -115,4 +122,18 @@ func (s *Service) GetFeed(ctx context.Context, userID string) ([]FeedItem, error
 		feed = append(feed, item)
 	}
 	return feed, rows.Err()
+}
+
+func (s *Service) DeleteFriend(ctx context.Context, friendshipID, userID string) error {
+	tag, err := s.db.Exec(ctx, `
+		DELETE FROM friendships
+		WHERE id = $1 AND (user_id = $2 OR friend_id = $2)
+		`, friendshipID, userID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

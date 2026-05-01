@@ -90,6 +90,7 @@ func main() {
 		r.Get("/api/friends", friendsH.GetFriends)
 		r.Post("/api/friends/request", friendsH.SendRequest)
 		r.Put("/api/friends/{id}/accept", friendsH.AcceptRequest)
+		r.Delete("/api/friends/{id}", friendsH.DeleteFriend)
 		r.Get("/api/feed", friendsH.GetFeed)
 
 		// Account

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getFriends, sendFriendRequest, acceptFriendRequest } from "../api";
+import {
+  getFriends,
+  sendFriendRequest,
+  acceptFriendRequest,
+  deleteFriend,
+} from "../api";
 import type { Friendship } from "../types";
+import { formatDate } from "../utils";
 
 export default function FriendsPage() {
   const [friends, setFriends] = useState<Friendship[]>([]);
@@ -8,6 +14,7 @@ export default function FriendsPage() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmUnfriend, setConfirmUnfriend] = useState<string | null>(null);
 
   useEffect(() => {
     fetchFriends();
@@ -45,6 +52,15 @@ export default function FriendsPage() {
       );
     } catch {
       console.error("Failed to accept request");
+    }
+  };
+
+  const handleUnfriend = async (id: string) => {
+    try {
+      await deleteFriend(id);
+      setFriends((prev) => prev.filter((f) => f.id !== id));
+    } catch {
+      console.error("Failed to unfriend");
     }
   };
 
@@ -118,8 +134,37 @@ export default function FriendsPage() {
                   key={f.id}
                   className="bg-gray-800 rounded-lg p-4 flex items-center justify-between"
                 >
-                  <p className="font-bold">{f.friend_name}</p>
-                  <span className="text-green-400 text-sm">Active</span>
+                  <div>
+                    <p className="font-bold">{f.friend_name}</p>
+                    <p className="text-xs text-gray-400 mt-1">
+                      {f.last_workout
+                        ? `Last workout: ${formatDate(f.last_workout)}`
+                        : "No workouts yet"}
+                    </p>
+                  </div>
+                  {confirmUnfriend === f.id ? (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleUnfriend(f.id)}
+                        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm cursor-pointer"
+                      >
+                        Yes
+                      </button>
+                      <button
+                        onClick={() => setConfirmUnfriend(null)}
+                        className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded text-sm cursor-pointer"
+                      >
+                        No
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmUnfriend(f.id)}
+                      className="px-3 py-1 bg-gray-700 hover:bg-red-600 rounded text-sm cursor-pointer transition-colors"
+                    >
+                      Unfriend
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

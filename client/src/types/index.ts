@@ -64,6 +64,7 @@ export interface Friendship {
   friend_name: string;
   status: string;
   created_at: string;
+  last_workout: string | null;
 }
 
 export interface FeedItem {

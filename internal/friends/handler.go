@@ -75,6 +75,21 @@ func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, feed)
 }
 
+func (h *Handler) DeleteFriend(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+	friendshipID := chi.URLParam(r, "id")
+	err := h.svc.DeleteFriend(r.Context(), friendshipID, userID)
+	if errors.Is(err, ErrNotFound) {
+		respondError(w, http.StatusNotFound, "friendship not found")
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "failed to delete friendship")
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

@@ -108,14 +108,10 @@ export default function SessionPage() {
   };
 
   if (loading)
-    return (
-      <div className="h-full bg-gray-900 text-white p-6">Loading...</div>
-    );
+    return <div className="h-full bg-gray-900 text-white p-6">Loading...</div>;
   if (!session)
     return (
-      <div className="h-full bg-gray-900 text-white p-6">
-        Session not found
-      </div>
+      <div className="h-full bg-gray-900 text-white p-6">Session not found</div>
     );
 
   const exerciseMap = new Map<string, { id: string; name: string }>();
@@ -158,9 +154,11 @@ export default function SessionPage() {
           </div>
         </div>
 
-        <p className="text-gray-400 text-sm mb-6">
-          Log your sets for today's workout.
-        </p>
+        {isLive && (
+          <p className="text-gray-400 text-sm mb-6">
+            Log your sets for today's workout.
+          </p>
+        )}
 
         {/* Exercises */}
         <div className="flex flex-col gap-6">

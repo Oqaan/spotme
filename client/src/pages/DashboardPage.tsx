@@ -169,9 +169,17 @@ export default function DashboardPage() {
                       {formatDate(item.date)}
                     </p>
                   </div>
-                  <p className="text-sm text-gray-400 mt-1">
-                    {item.template_name} - {item.set_count} sets
-                  </p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-sm text-gray-400">
+                      {item.template_name} - {item.set_count} sets
+                    </p>
+                    <span
+                      className="text-orange-400 text-sm cursor-pointer"
+                      onClick={() => navigate(`/session/${item.session_id}`)}
+                    >
+                      View →
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

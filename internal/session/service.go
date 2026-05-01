@@ -50,7 +50,17 @@ func (s *Service) GetSession(ctx context.Context, id, userID string) (*Session, 
 	err := s.db.QueryRow(ctx, `
     SELECT id, user_id, template_id, date::text, notes
     FROM sessions
-    WHERE id = $1 AND user_id = $2
+    WHERE id = $1 AND (
+		user_id = $2
+		OR user_id IN (
+			SELECT CASE
+				WHEN user_id = $2 THEN friend_id
+				ELSE user_id
+			END
+			FROM friendships
+			WHERE (user_id = $2 OR friend_id = $2) AND status = 'accepted'
+		)
+	)
 `, id, userID).Scan(&sess.ID, &sess.UserID, &templateID, &sess.Date, &sess.Notes)
 	if err != nil {
 		return nil, ErrNotFound

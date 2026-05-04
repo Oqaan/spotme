@@ -24,6 +24,10 @@ export default function ProgressPage() {
   };
 
   const handleSelect = async (exerciseId: string) => {
+    if (selected?.exercise_id === exerciseId) {
+      setSelected(null);
+      return;
+    }
     try {
       const res = await getExerciseProgress(exerciseId);
       setSelected(res.data);
@@ -51,22 +55,77 @@ export default function ProgressPage() {
                 Exercises
               </h2>
               {exercises.map((ex) => (
-                <button
-                  key={ex.exercise_id}
-                  onClick={() => handleSelect(ex.exercise_id)}
-                  className={`text-left px-4 py-3 rounded-lg cursor-pointer transition-colors ${
-                    selected?.exercise_id === ex.exercise_id
-                      ? "bg-orange-500 text-white"
-                      : "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                  }`}
-                >
-                  {ex.exercise_name}
-                </button>
+                <div key={ex.exercise_id} className="flex flex-col">
+                  <button
+                    onClick={() => handleSelect(ex.exercise_id)}
+                    className={`text-left px-4 py-3 rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                      selected?.exercise_id === ex.exercise_id
+                        ? "bg-orange-500 text-white rounded-b-none"
+                        : "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                    }`}
+                  >
+                    <span>{ex.exercise_name}</span>
+                    <span className="text-sm">
+                      {selected?.exercise_id === ex.exercise_id ? "▲" : "▼"}
+                    </span>
+                  </button>
+
+                  {selected?.exercise_id === ex.exercise_id && (
+                    <div className="bg-gray-700 rounded-b-lg px-4 py-3 flex flex-col gap-2 md:hidden">
+                      {selected.history.length === 0 ? (
+                        <p className="text-gray-400 text-sm">No data yet.</p>
+                      ) : (
+                        <>
+                          {selected.history.map((dp, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2"
+                            >
+                              <span className="text-sm text-gray-400">
+                                {formatDate(dp.date)}
+                              </span>
+                              <div className="flex gap-4 text-sm">
+                                <span className="font-bold text-orange-400">
+                                  {dp.max_weight}kg
+                                </span>
+                                <span className="text-gray-300">
+                                  {dp.total_reps} reps
+                                </span>
+                                <span className="text-gray-400">
+                                  {dp.sets} sets
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                          {selected.history.length > 1 && (
+                            <div className="mt-1 text-sm">
+                              {selected.history[selected.history.length - 1]
+                                .max_weight > selected.history[0].max_weight ? (
+                                <p className="text-green-400">
+                                  ↑ PR: +
+                                  {(
+                                    selected.history[
+                                      selected.history.length - 1
+                                    ].max_weight -
+                                    selected.history[0].max_weight
+                                  ).toFixed(1)}
+                                  kg since first session
+                                </p>
+                              ) : (
+                                <p className="text-gray-400">Keep pushing!</p>
+                              )}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
 
             {/* Progress detail */}
-            <div className="md:col-span-2">
+            <div className="hidden md:block md:col-span-2">
               {!selected ? (
                 <div className="bg-gray-800 rounded-lg p-6 text-center">
                   <p className="text-gray-400">

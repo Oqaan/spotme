@@ -75,7 +75,10 @@ export default function FriendsPage() {
         {/* Add friend form */}
         <div className="bg-gray-800 rounded-lg p-4 mb-6">
           <h2 className="font-bold mb-3">Add Gym Buddy</h2>
-          <form onSubmit={handleSendRequest} className="flex gap-3">
+          <form
+            onSubmit={handleSendRequest}
+            className="flex flex-col sm:flex-row gap-3"
+          >
             <input
               type="email"
               placeholder="Enter their email"

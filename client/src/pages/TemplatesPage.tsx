@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getTemplates, createTemplate, deleteTemplate } from "../api";
 import type { Template } from "../types";
+import { Pencil, Trash2 } from "lucide-react";
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -9,7 +10,7 @@ export default function TemplatesPage() {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [dayOfWeek, setDayOfWeek] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTemplates();
@@ -124,15 +125,15 @@ export default function TemplatesPage() {
                 <div className="flex gap-3">
                   <Link
                     to={`/templates/${template.id}`}
-                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm cursor-pointer"
+                    className="p-2 text-gray-400 hover:text-white cursor-pointer"
                   >
-                    Edit
+                    <Pencil size={16} />
                   </Link>
                   <button
                     onClick={() => handleDelete(template.id)}
-                    className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm cursor-pointer"
+                    className="p-2 text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    Delete
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>

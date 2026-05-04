@@ -25,7 +25,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 
 function SortableExercise({
   exercise,
@@ -73,9 +73,9 @@ function SortableExercise({
       </div>
       <button
         onClick={() => onDelete(exercise.id)}
-        className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm cursor-pointer"
+        className="p-2 text-red-400 hover:text-red-300 cursor-pointer"
       >
-        Remove
+        <Trash2 size={16} />
       </button>
     </div>
   );

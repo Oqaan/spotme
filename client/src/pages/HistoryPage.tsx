@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { getSessions, deleteSession } from "../api";
 import type { Session } from "../types";
 import { formatDate } from "../utils";
+import { Eye, Trash2 } from "lucide-react";
 
 export default function HistoryPage() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -59,15 +60,15 @@ export default function HistoryPage() {
                 <div className="flex gap-3">
                   <Link
                     to={`/session/${session.id}`}
-                    className="px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm cursor-pointer"
+                    className="p-2 text-gray-400 hover:text-white cursor-pointer"
                   >
-                    View
+                    <Eye size={16} />
                   </Link>
                   <button
                     onClick={() => handleDelete(session.id)}
-                    className="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm cursor-pointer"
+                    className="p-2 text-red-400 hover:text-red-300 cursor-pointer"
                   >
-                    Delete
+                    <Trash2 size={16} />
                   </button>
                 </div>
               </div>

@@ -49,6 +49,10 @@ func (h *Handler) CreateTemplate(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "template name must be between 1 and 50 characters")
+		return
+	}
 	template, err := h.svc.CreateTemplate(r.Context(), userID, req)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "failed to create template")
@@ -63,6 +67,10 @@ func (h *Handler) UpdateTemplate(w http.ResponseWriter, r *http.Request) {
 	var req UpdateTemplateRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "template name must be between 1 and 50 characters")
 		return
 	}
 	template, err := h.svc.UpdateTemplate(r.Context(), id, userID, req)
@@ -100,6 +108,18 @@ func (h *Handler) AddExercise(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "exercise name must be between 1 and 50 characters")
+		return
+	}
+	if req.TargetSets < 1 || req.TargetSets > 100 {
+		respondError(w, http.StatusBadRequest, "target sets must be between 1 and 100")
+		return
+	}
+	if req.TargetReps < 1 || req.TargetReps > 1000 {
+		respondError(w, http.StatusBadRequest, "target reps must be between 1 and 1000")
+		return
+	}
 	exercise, err := h.svc.AddExercise(r.Context(), templateID, userID, req)
 	if errors.Is(err, ErrNotFound) {
 		respondError(w, http.StatusNotFound, "template not found")
@@ -118,6 +138,18 @@ func (h *Handler) UpdateExercise(w http.ResponseWriter, r *http.Request) {
 	var req UpdateExerciseRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "exercise name must be between 1 and 50 characters")
+		return
+	}
+	if req.TargetSets < 1 || req.TargetSets > 100 {
+		respondError(w, http.StatusBadRequest, "target sets must be between 1 and 100")
+		return
+	}
+	if req.TargetReps < 1 || req.TargetReps > 1000 {
+		respondError(w, http.StatusBadRequest, "target reps must be between 1 and 1000")
 		return
 	}
 	exercise, err := h.svc.UpdateExercise(r.Context(), exerciseID, userID, req)

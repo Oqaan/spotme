@@ -49,6 +49,14 @@ func (h *Handler) CreateSession(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(req.Date) == 0 {
+		respondError(w, http.StatusBadRequest, "date is required")
+		return
+	}
+	if len(req.Notes) > 500 {
+		respondError(w, http.StatusBadRequest, "notes must be under 500 characters")
+		return
+	}
 	session, err := h.svc.CreateSession(r.Context(), userID, req)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, "failed to create session")
@@ -78,6 +86,18 @@ func (h *Handler) AddSet(w http.ResponseWriter, r *http.Request) {
 	var req AddSetRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if req.Reps < 0 || req.Reps > 10000 {
+		respondError(w, http.StatusBadRequest, "invalid reps value")
+		return
+	}
+	if req.Weight < 0 || req.Weight > 10000 {
+		respondError(w, http.StatusBadRequest, "invalid weight value")
+		return
+	}
+	if req.SetNumber < 1 || req.SetNumber > 1000 {
+		respondError(w, http.StatusBadRequest, "invalid set number")
 		return
 	}
 	set, err := h.svc.AddSet(r.Context(), sessionID, userID, req)

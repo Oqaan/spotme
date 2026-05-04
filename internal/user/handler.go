@@ -33,6 +33,10 @@ func (h *Handler) UpdateName(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "name must be between 1 and 50 characters")
+		return
+	}
 	if err := h.svc.UpdateName(r.Context(), userID, req.Name); err != nil {
 		respondError(w, http.StatusInternalServerError, "failed to update name")
 		return
@@ -45,6 +49,10 @@ func (h *Handler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	var req UpdatePasswordRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if len(req.NewPassword) < 6 || len(req.NewPassword) > 72 {
+		respondError(w, http.StatusBadRequest, "password must be between 6 and 72 characters")
 		return
 	}
 	err := h.svc.UpdatePassword(r.Context(), userID, req)

@@ -54,6 +54,8 @@ func main() {
 	// Public routes
 	r.Post("/api/auth/register", authH.Register)
 	r.Post("/api/auth/login", authH.Login)
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
 
 	// Protected routes
 	r.Group(func(r chi.Router) {

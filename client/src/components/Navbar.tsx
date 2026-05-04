@@ -31,15 +31,16 @@ export default function Navbar() {
 
   return (
     <nav className="relative bg-gray-800 border-b border-gray-700 px-6 py-4">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/dashboard" className="text-orange-400">
-          <Logo className="h-8 w-8" />
-        </Link>
-
+      <div className="max-w-6xl mx-auto flex items-center justify-between relative">
+        <div className="md:static absolute left-1/2 -translate-x-1/2 md:translate-x-0">
+          <Link to="/dashboard" className="text-orange-400">
+            <Logo className="h-8 w-8" />
+          </Link>
+        </div>
         {isLoggedIn && (
           <>
             {/* Desktop */}
-            <div className="hidden md:flex gap-6 items-center">
+            <div className="hidden md:flex gap-6 items-center ml-auto">
               {navLink("/dashboard", "Dashboard")}
               {navLink("/templates", "Templates")}
               {navLink("/history", "History")}
@@ -55,12 +56,15 @@ export default function Navbar() {
             </div>
 
             {/* Mobile burger */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-gray-300 hover:text-white cursor-pointer text-2xl"
-            >
-              {menuOpen ? "✕" : "☰"}
-            </button>
+            <div className="w-8 md:hidden" />
+            <div className="flex justify-end md:hidden">
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="text-gray-300 hover:text-white cursor-pointer text-2xl"
+              >
+                {menuOpen ? "✕" : "☰"}
+              </button>
+            </div>
           </>
         )}
       </div>

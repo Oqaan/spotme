@@ -29,7 +29,11 @@ func (s *Service) GetExerciseProgress(ctx context.Context, exerciseID, userID st
 		SELECT
 			s.date::text,
 			MAX(ss.weight) AS max_weight,
-			SUM(ss.reps) AS total_reps,
+			(SELECT ss2.reps FROM session_sets ss2
+			JOIN sessions s2 ON s2.id = ss2.session_id
+			WHERE ss2.exercise_id = $1 AND s2.user_id = $2 AND s2.date = s.date
+			ORDER BY ss2.weight DESC, ss2.reps DESC
+			LIMIT 1) AS best_reps,
 			COUNT(ss.id) AS sets
 		FROM session_sets ss
 		JOIN sessions s ON s.id = ss.session_id

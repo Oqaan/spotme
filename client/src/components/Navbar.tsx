@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import Logo from "../assets/logo.svg?react";
 
 export default function Navbar() {
   const { isLoggedIn, logout } = useAuth();
@@ -31,8 +32,8 @@ export default function Navbar() {
   return (
     <nav className="relative bg-gray-800 border-b border-gray-700 px-6 py-4">
       <div className="max-w-6xl mx-auto flex items-center justify-between">
-        <Link to="/dashboard" className="text-xl font-bold text-orange-400">
-          SpotMe
+        <Link to="/dashboard" className="text-orange-400">
+          <Logo className="h-8 w-8" />
         </Link>
 
         {isLoggedIn && (

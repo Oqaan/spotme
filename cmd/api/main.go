@@ -46,7 +46,7 @@ func main() {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(middleware.RateLimit)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://spotme-pearl.vercel.app", "http://localhost:5173"},
+		AllowedOrigins:   []string{"https://spotme-rosy.vercel.app", "http://localhost:5173"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/itsYuuuka/spotme/internal/auth"
+	"github.com/Oqaan/spotme/internal/auth"
 )
 
 type contextKey string

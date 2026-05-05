@@ -137,12 +137,12 @@ export default function SettingsPage() {
           <h2 className="font-bold mb-2">About</h2>
           <p className="text-sm text-gray-400">SpotMe v1.0</p>
           <a
-            href="https://github.com/itsYuuuka/spotme"
+            href="https://github.com/Oqaan/spotme"
             target="_blank"
             rel="noreferrer"
             className="text-sm text-orange-400 hover:underline"
           >
-            github.com/itsYuuuka/spotme
+            github.com/Oqaan/spotme
           </a>
         </div>
 

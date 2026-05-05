@@ -9,15 +9,15 @@ import (
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 
-	"github.com/itsYuuuka/spotme/config"
-	"github.com/itsYuuuka/spotme/internal/auth"
-	"github.com/itsYuuuka/spotme/internal/db"
-	"github.com/itsYuuuka/spotme/internal/friends"
-	"github.com/itsYuuuka/spotme/internal/middleware"
-	"github.com/itsYuuuka/spotme/internal/progress"
-	"github.com/itsYuuuka/spotme/internal/session"
-	"github.com/itsYuuuka/spotme/internal/user"
-	"github.com/itsYuuuka/spotme/internal/workout"
+	"github.com/Oqaan/spotme/config"
+	"github.com/Oqaan/spotme/internal/auth"
+	"github.com/Oqaan/spotme/internal/db"
+	"github.com/Oqaan/spotme/internal/friends"
+	"github.com/Oqaan/spotme/internal/middleware"
+	"github.com/Oqaan/spotme/internal/progress"
+	"github.com/Oqaan/spotme/internal/session"
+	"github.com/Oqaan/spotme/internal/user"
+	"github.com/Oqaan/spotme/internal/workout"
 )
 
 func main() {

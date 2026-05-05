@@ -1,4 +1,4 @@
-module github.com/itsYuuuka/spotme
+module github.com/Oqaan/spotme
 
 go 1.25.5
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/itsYuuuka/spotme/internal/middleware"
+	"github.com/Oqaan/spotme/internal/middleware"
 )
 
 type Handler struct {

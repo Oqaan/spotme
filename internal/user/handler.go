@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/itsYuuuka/spotme/internal/middleware"
+	"github.com/Oqaan/spotme/internal/middleware"
 )
 
 type Handler struct {

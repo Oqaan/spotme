@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"github.com/Oqaan/spotme/internal/middleware"
+	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
@@ -145,6 +145,29 @@ func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) GetStreak(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+	streak, err := h.svc.GetStreak(r.Context(), userID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "failed to fetch streak")
+		return
+	}
+	respondJSON(w, http.StatusOK, map[string]int{"streak": streak})
+}
+
+func (h *Handler) GetWeek(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+	dates, err := h.svc.GetWeek(r.Context(), userID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "failed to fetch week")
+		return
+	}
+	if dates == nil {
+		dates = []string{}
+	}
+	respondJSON(w, http.StatusOK, map[string][]string{"dates": dates})
 }
 
 func respondJSON(w http.ResponseWriter, status int, data any) {

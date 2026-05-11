@@ -7,6 +7,8 @@ import {
   createSession,
   getFriends,
   deleteSession,
+  getStreak,
+  getWeek,
 } from "../api";
 import type { Template, FeedItem, Friendship } from "../types";
 import { formatDate } from "../utils";
@@ -18,6 +20,8 @@ export default function DashboardPage() {
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<Friendship[]>([]);
+  const [streak, setStreak] = useState(0);
+  const [weekDates, setWeekDates] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null,
   );
@@ -31,14 +35,19 @@ export default function DashboardPage() {
 
     const fetchData = async () => {
       try {
-        const [templatesRes, feedRes, friendsRes] = await Promise.all([
-          getTemplates(),
-          getFeed(),
-          getFriends(),
-        ]);
+        const [templatesRes, feedRes, friendsRes, streakRes, weekRes] =
+          await Promise.all([
+            getTemplates(),
+            getFeed(),
+            getFriends(),
+            getStreak(),
+            getWeek(),
+          ]);
         setTemplates(templatesRes.data ?? []);
         setFeed(feedRes.data ?? []);
         setFriends(friendsRes.data ?? []);
+        setStreak(streakRes.data.streak ?? 0);
+        setWeekDates(weekRes.data.dates ?? []);
       } catch {
         console.error("Failed to fetch dashboard data");
       } finally {
@@ -89,15 +98,110 @@ export default function DashboardPage() {
       }}
     >
       <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto px-4 pt-14 pb-28">
-        <h1 className="text-3xl font-extrabold mb-1 tracking-tight">
-          Hey, {name}!
-        </h1>
-        <p
-          className="mb-8"
-          style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}
+        {/* Hero card */}
+        <div
+          className="rounded-2xl p-4 mb-4 overflow-hidden relative"
+          style={{
+            background:
+              "linear-gradient(180deg, color-mix(in oklab, #B458FF 12%, rgba(20,16,28,0.6)), rgba(20,16,28,0.6))",
+            border: "1px solid color-mix(in oklab, #B458FF 35%, transparent)",
+            boxShadow: "0 0 30px color-mix(in oklab, #B458FF 20%, transparent)",
+          }}
         >
-          Ready to train today?
-        </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <p
+                className="text-xs font-bold tracking-widest uppercase mb-2"
+                style={{ color: "rgba(255,255,255,0.55)" }}
+              >
+                {new Date()
+                  .toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })
+                  .toUpperCase()}
+              </p>
+              <h1 className="text-4xl font-extrabold tracking-tight leading-none mb-1">
+                Hey {name}.
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13 }}>
+                Ready to train today?
+              </p>
+            </div>
+            <div className="text-right">
+              <p
+                className="text-4xl font-extrabold"
+                style={{
+                  color: "#B458FF",
+                  textShadow:
+                    "0 0 16px color-mix(in oklab, #B458FF 70%, transparent)",
+                }}
+              >
+                {streak}
+              </p>
+              <p
+                className="text-xs font-bold tracking-widest uppercase"
+                style={{ color: "rgba(255,255,255,0.45)" }}
+              >
+                day streak
+              </p>
+            </div>
+          </div>
+
+          {/* Week dots */}
+          <div className="flex gap-1 mt-4">
+            {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => {
+              const today = new Date().getDay();
+              const mondayBased = today === 0 ? 6 : today - 1;
+              const isToday = i === mondayBased;
+              const isFuture = i > mondayBased;
+
+              // Get the date for this day slot
+              const now = new Date();
+              const diff = i - mondayBased;
+              const slotDate = new Date(now);
+              slotDate.setDate(now.getDate() + diff);
+              const slotStr = slotDate.toISOString().split("T")[0];
+
+              const isDone = weekDates.includes(slotStr);
+
+              return (
+                <div
+                  key={i}
+                  className="flex-1 flex flex-col items-center gap-1"
+                >
+                  <span
+                    className="font-bold"
+                    style={{
+                      color: isToday ? "#B458FF" : "rgba(255,255,255,0.35)",
+                      fontSize: 9,
+                    }}
+                  >
+                    {d}
+                  </span>
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      background: isDone
+                        ? "#B458FF"
+                        : isToday && !isDone
+                          ? "transparent"
+                          : isFuture
+                            ? "rgba(255,255,255,0.1)"
+                            : "rgba(255,255,255,0.1)",
+                      border:
+                        isToday && !isDone ? "1.5px solid #B458FF" : "none",
+                      boxShadow: isDone ? "0 0 8px #B458FF" : "none",
+                    }}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4">

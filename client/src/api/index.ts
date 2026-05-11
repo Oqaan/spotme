@@ -112,6 +112,12 @@ export const createSession = (data: {
 
 export const deleteSession = (id: string) => api.delete(`/api/sessions/${id}`);
 
+export const getStreak = () =>
+  api.get<{ streak: number }>("/api/sessions/streak");
+
+export const getWeek = () =>
+  api.get<{ dates: string[] }>("/api/sessions/week");
+
 // Sets
 export const addSet = (
   sessionId: string,

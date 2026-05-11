@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -160,4 +161,89 @@ func (s *Service) DeleteSet(ctx context.Context, setID, userID string) error {
 		return ErrNotFound
 	}
 	return nil
+}
+
+func (s *Service) GetStreak(ctx context.Context, userID string) (int, error) {
+	loc, _ := time.LoadLocation("Europe/Vienna")
+	now := time.Now().In(loc)
+	rows, err := s.db.Query(ctx, `
+		SELECT DISTINCT date::text
+		FROM sessions
+		WHERE user_id = $1
+		ORDER BY date DESC
+	`, userID)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var dates []string
+	for rows.Next() {
+		var d string
+		if err := rows.Scan(&d); err != nil {
+			return 0, err
+		}
+		dates = append(dates, d)
+	}
+	if err := rows.Err(); err != nil {
+		return 0, err
+	}
+	if len(dates) == 0 {
+		return 0, nil
+	}
+
+	today := now.Format("2006-01-02")
+	yesterday := now.AddDate(0, 0, -1).Format("2006-01-02")
+
+	if dates[0] != today && dates[0] != yesterday {
+		return 0, nil
+	}
+
+	streak := 0
+	expected := dates[0]
+	for _, d := range dates {
+		if d == expected {
+			streak++
+			t, _ := time.Parse("2006-01-02", expected)
+			expected = t.AddDate(0, 0, -1).Format("2006-01-02")
+		} else {
+			break
+		}
+	}
+	return streak, nil
+}
+
+func (s *Service) GetWeek(ctx context.Context, userID string) ([]string, error) {
+	loc, _ := time.LoadLocation("Europe/Vienna")
+	now := time.Now().In(loc)
+	weekday := int(now.Weekday())
+	if weekday == 0 {
+		weekday = 7
+	}
+	monday := now.AddDate(0, 0, -(weekday - 1))
+	start := monday.Format("2006-01-02")
+	end := now.Format("2006-01-02")
+
+	rows, err := s.db.Query(ctx, `
+		SELECT DISTINCT date::text
+		FROM sessions
+		WHERE user_id = $1
+		AND date >= $2
+		AND date <= $3
+		ORDER BY date ASC
+	`, userID, start, end)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var dates []string
+	for rows.Next() {
+		var d string
+		if err := rows.Scan(&d); err != nil {
+			return nil, err
+		}
+		dates = append(dates, d)
+	}
+	return dates, rows.Err()
 }

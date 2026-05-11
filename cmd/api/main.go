@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
@@ -46,7 +48,7 @@ func main() {
 	r.Use(chimiddleware.Recoverer)
 	r.Use(middleware.RateLimit)
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://spotme-rosy.vercel.app", "http://localhost:5173"},
+		AllowedOrigins:   strings.Split(os.Getenv("ALLOWED_ORIGINS"), ","),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
@@ -80,6 +82,8 @@ func main() {
 		r.Post("/api/sessions", sessionH.CreateSession)
 		r.Get("/api/sessions/{id}", sessionH.GetSession)
 		r.Delete("/api/sessions/{id}", sessionH.DeleteSession)
+		r.Get("/api/sessions/streak", sessionH.GetStreak)
+		r.Get("/api/sessions/week", sessionH.GetWeek)
 
 		// Sets
 		r.Post("/api/sessions/{id}/sets", sessionH.AddSet)

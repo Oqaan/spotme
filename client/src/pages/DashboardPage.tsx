@@ -78,29 +78,58 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="bg-gray-900 text-white h-full flex flex-col">
-      <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto p-6">
-        <h1 className="text-2xl font-bold mb-2">Hey, {name}!</h1>
-        <p className="text-gray-400 mb-8">Ready to train today?</p>
+    <div
+      className="text-white h-full flex flex-col"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+    radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #B458FF 22%, transparent), transparent 55%),
+    radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, oklch(0.6 0.2 280) 16%, transparent), transparent 60%)
+  `,
+      }}
+    >
+      <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto px-4 pt-14 pb-28">
+        <h1 className="text-3xl font-extrabold mb-1 tracking-tight">
+          Hey, {name}!
+        </h1>
+        <p
+          className="mb-8"
+          style={{ color: "rgba(255,255,255,0.55)", fontSize: 13 }}
+        >
+          Ready to train today?
+        </p>
 
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold">Your Split</h2>
+            <h2 className="text-xl font-extrabold tracking-tight">
+              Your Split
+            </h2>
             <Link
               to="/templates"
-              className="text-orange-400 text-sm hover:underline"
+              className="text-sm font-bold hover:underline"
+              style={{ color: "#B458FF" }}
             >
-              Manage templates
+              Manage
             </Link>
           </div>
           {loading ? (
-            <p className="text-gray-400">Loading...</p>
+            <p style={{ color: "rgba(255,255,255,0.4)" }}>Loading...</p>
           ) : templates.length === 0 ? (
-            <div className="bg-gray-800 rounded-lg p-6 text-center">
-              <p className="text-gray-400 mb-4">No templates yet.</p>
+            <div
+              className="rounded-xl p-6 text-center"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <p className="mb-4" style={{ color: "rgba(255,255,255,0.4)" }}>
+                No templates yet.
+              </p>
               <Link
                 to="/templates"
-                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold"
+                className="px-4 py-2 rounded font-bold"
+                style={{ background: "#B458FF", color: "#0B0810" }}
               >
                 Create your split
               </Link>
@@ -111,16 +140,41 @@ export default function DashboardPage() {
                 <div
                   key={template.id}
                   onClick={() => setSelectedTemplate(template)}
-                  className="bg-gray-800 rounded-lg p-3 flex flex-col gap-2 h-33 cursor-pointer hover:bg-gray-700 border border-gray-700"
+                  className="rounded-xl p-3 flex flex-col gap-2 h-33 cursor-pointer relative overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(20px)",
+                  }}
                 >
-                  <p className="font-bold">{template.name}</p>
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      height: 3,
+                      width: "40%",
+                      background:
+                        "linear-gradient(90deg, #B458FF, oklch(0.6 0.22 280))",
+                    }}
+                  />
+                  <p className="font-extrabold tracking-tight mt-1">
+                    {template.name}
+                  </p>
                   {template.day_of_week && (
-                    <p className="text-xs text-gray-400">
+                    <p
+                      className="text-xs font-bold tracking-widest uppercase"
+                      style={{ color: "rgba(255,255,255,0.4)" }}
+                    >
                       {template.day_of_week}
                     </p>
                   )}
                   {template.exercises && template.exercises.length > 0 && (
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p
+                      className="text-xs mt-1"
+                      style={{ color: "rgba(255,255,255,0.5)" }}
+                    >
                       {template.exercises
                         .slice(0, 3)
                         .map((e) => e.name)
@@ -137,21 +191,45 @@ export default function DashboardPage() {
 
         {/* Friend feed */}
         <div>
-          <h2 className="text-xl font-bold mb-4">Friend Activity</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-extrabold tracking-tight">
+              Friend Activity
+            </h2>
+            <Link
+              to="/friends"
+              className="text-sm font-bold"
+              style={{ color: "#B458FF" }}
+            >
+              See all →
+            </Link>
+          </div>
           {feed.length === 0 ? (
-            <div className="bg-gray-800 rounded-lg p-6 text-center">
+            <div
+              className="rounded-xl p-6 text-center"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
               {friends.filter((f) => f.status === "accepted").length === 0 ? (
                 <>
-                  <p className="text-gray-400 mb-4">No friend activity yet.</p>
+                  <p
+                    className="mb-4"
+                    style={{ color: "rgba(255,255,255,0.4)" }}
+                  >
+                    No friend activity yet.
+                  </p>
                   <Link
                     to="/friends"
-                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold"
+                    className="px-4 py-2 rounded font-bold"
+                    style={{ background: "#B458FF", color: "#0B0810" }}
                   >
                     Add your gym buddy
                   </Link>
                 </>
               ) : (
-                <p className="text-gray-400">
+                <p style={{ color: "rgba(255,255,255,0.4)" }}>
                   Your buddy hasn't logged a workout yet. Time to motivate them!
                 </p>
               )}
@@ -161,25 +239,41 @@ export default function DashboardPage() {
               {feed.slice(0, 5).map((item) => (
                 <div
                   key={item.session_id}
-                  className="bg-gray-800 rounded-lg p-4"
+                  className="rounded-xl p-4 flex items-center gap-3"
+                  style={{
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    backdropFilter: "blur(20px)",
+                  }}
                 >
-                  <div className="flex items-center justify-between">
-                    <p className="font-bold">{item.user_name}</p>
-                    <p className="text-sm text-gray-400">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shrink-0"
+                    style={{
+                      background:
+                        "linear-gradient(135deg, oklch(0.65 0.18 280), oklch(0.4 0.16 280))",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                  >
+                    {item.user_name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{item.user_name}</p>
+                    <p
+                      className="text-xs mt-0.5"
+                      style={{ color: "rgba(255,255,255,0.5)" }}
+                    >
+                      {item.template_name} · {item.set_count} sets ·{" "}
                       {formatDate(item.date)}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-sm text-gray-400">
-                      {item.template_name} - {item.set_count} sets
-                    </p>
-                    <span
-                      className="text-orange-400 text-sm cursor-pointer"
-                      onClick={() => navigate(`/session/${item.session_id}`)}
-                    >
-                      View →
-                    </span>
-                  </div>
+                  <span
+                    className="text-sm font-bold cursor-pointer shrink-0"
+                    style={{ color: "#B458FF" }}
+                    onClick={() => navigate(`/session/${item.session_id}`)}
+                  >
+                    View →
+                  </span>
                 </div>
               ))}
             </div>
@@ -188,28 +282,40 @@ export default function DashboardPage() {
       </div>
       {selectedTemplate && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-end z-50"
+          className="fixed inset-0 flex items-end z-50"
+          style={{ background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)" }}
           onClick={() => setSelectedTemplate(null)}
         >
           <div
-            className="bg-gray-800 w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto"
+            className="w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(30,20,40,0.98), rgba(11,8,16,0.98))",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderBottom: "none",
+              boxShadow: `0 0 60px color-mix(in oklab, #B458FF 20%, transparent)`,
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold">{selectedTemplate.name}</h2>
+              <h2 className="text-xl font-extrabold tracking-tight">
+                {selectedTemplate.name}
+              </h2>
               <div className="flex items-center gap-6">
                 <button
                   onClick={() => {
                     setSelectedTemplate(null);
                     navigate(`/templates/${selectedTemplate.id}`);
                   }}
-                  className="text-gray-400 hover:text-orange-400 text-sm cursor-pointer"
+                  className="text-sm font-bold cursor-pointer"
+                  style={{ color: "#B458FF" }}
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => setSelectedTemplate(null)}
-                  className="text-gray-400 text-xl hover:text-white cursor-pointer"
+                  className="text-xl cursor-pointer"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
                 >
                   ✕
                 </button>
@@ -217,7 +323,10 @@ export default function DashboardPage() {
             </div>
 
             {selectedTemplate.day_of_week && (
-              <p className="text-sm text-gray-400 mb-4">
+              <p
+                className="text-xs font-bold tracking-widest uppercase mb-4"
+                style={{ color: "rgba(255,255,255,0.4)" }}
+              >
                 {selectedTemplate.day_of_week}
               </p>
             )}
@@ -226,12 +335,19 @@ export default function DashboardPage() {
               {selectedTemplate.exercises?.map((exercise, index) => (
                 <div
                   key={exercise.id}
-                  className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3 gap-2"
+                  className="flex items-center justify-between rounded-xl px-4 py-3 gap-2"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                  }}
                 >
-                  <span className="text-xs font-medium">
+                  <span className="text-xs font-bold">
                     {index + 1}. {exercise.name}
                   </span>
-                  <span className="text-xs text-gray-400 shrink-0">
+                  <span
+                    className="text-xs font-bold shrink-0"
+                    style={{ color: "rgba(255,255,255,0.4)" }}
+                  >
                     {exercise.target_sets} × {exercise.target_reps}
                   </span>
                 </div>
@@ -243,7 +359,14 @@ export default function DashboardPage() {
                 setSelectedTemplate(null);
                 handleStartSession(selectedTemplate.id);
               }}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 rounded-xl font-bold cursor-pointer"
+              className="w-full py-3 rounded-xl font-extrabold cursor-pointer tracking-tight"
+              style={{
+                background:
+                  "linear-gradient(135deg, #B458FF, oklch(0.55 0.25 320))",
+                color: "#0B0810",
+                boxShadow:
+                  "0 0 24px color-mix(in oklab, #B458FF 60%, transparent)",
+              }}
             >
               Start Workout
             </button>

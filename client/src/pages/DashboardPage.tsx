@@ -86,6 +86,53 @@ export default function DashboardPage() {
     }
   };
 
+  const getUpNext = (): Template | null => {
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    const trainedToday = weekDates.includes(todayStr);
+    const todayIdx = today.getDay();
+
+    // If already trained today, start search from tomorrow
+    const startOffset = trainedToday ? 1 : 0;
+
+    for (let i = startOffset; i < 7; i++) {
+      const checkDay = days[(todayIdx + i) % 7];
+      const match = templates.find(
+        (t) => t.day_of_week?.toLowerCase() === checkDay.toLowerCase(),
+      );
+      if (match) return match;
+    }
+    return null;
+  };
+
+  const dayOrder = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+  const sortedTemplates = [...templates].sort((a, b) => {
+    const ai = dayOrder.indexOf(a.day_of_week ?? "");
+    const bi = dayOrder.indexOf(b.day_of_week ?? "");
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+
+  const upNext = getUpNext();
+
   return (
     <div
       className="text-white h-full flex flex-col"
@@ -203,6 +250,72 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {upNext && (
+          <div
+            className="rounded-2xl p-4 mb-6 flex items-center gap-4"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+              border: "1px solid rgba(255,255,255,0.08)",
+              backdropFilter: "blur(20px)",
+            }}
+          >
+            <div className="flex-1 min-w-0">
+              <p
+                className="text-xs font-bold tracking-widest uppercase mb-1"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                Up next ·{" "}
+                {upNext.day_of_week?.toLowerCase() ===
+                new Date()
+                  .toLocaleDateString("en-US", { weekday: "long" })
+                  .toLowerCase()
+                  ? "Today"
+                  : upNext.day_of_week}
+              </p>
+              <p className="text-lg font-extrabold tracking-tight">
+                {upNext.name}
+              </p>
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                {upNext.exercises?.length ?? 0} ex ·{" "}
+                {upNext.exercises?.reduce(
+                  (a, e) => a + (e.target_sets ?? 0),
+                  0,
+                ) ?? 0}{" "}
+                sets
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedTemplate(upNext)}
+              className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+              style={{
+                background: "#B458FF",
+                boxShadow:
+                  "0 0 20px color-mix(in oklab, #B458FF 80%, transparent)",
+              }}
+            >
+              <svg
+                className="cursor-pointer"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <path
+                  d="M9 6l6 6-6 6"
+                  stroke="#0B0810"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        )}
+
         <div className="mb-10">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-extrabold tracking-tight">
@@ -240,7 +353,7 @@ export default function DashboardPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-4">
-              {templates.map((template) => (
+              {sortedTemplates.map((template) => (
                 <div
                   key={template.id}
                   onClick={() => setSelectedTemplate(template)}
@@ -263,17 +376,17 @@ export default function DashboardPage() {
                         "linear-gradient(90deg, #B458FF, oklch(0.6 0.22 280))",
                     }}
                   />
-                  <p className="font-extrabold tracking-tight mt-1">
-                    {template.name}
-                  </p>
                   {template.day_of_week && (
                     <p
                       className="text-xs font-bold tracking-widest uppercase"
                       style={{ color: "rgba(255,255,255,0.4)" }}
                     >
-                      {template.day_of_week}
+                      {template.day_of_week.slice(0, 3)}
                     </p>
                   )}
+                  <p className="font-extrabold tracking-tight">
+                    {template.name}
+                  </p>
                   {template.exercises && template.exercises.length > 0 && (
                     <p
                       className="text-xs mt-1"

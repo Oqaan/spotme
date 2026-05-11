@@ -50,7 +50,10 @@ func getVisitor(ip string) *rate.Limiter {
 
 func RateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ip := r.RemoteAddr
+		ip := r.Header.Get("X-Forwarded-For")
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
 		limiter := getVisitor(ip)
 		if !limiter.Allow() {
 			http.Error(w, `{"error":"too many requests"}`, http.StatusTooManyRequests)

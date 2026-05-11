@@ -20,3 +20,13 @@ body {
 .animate-slide-in {
   animation: slide-in 0.2s ease-out;
 }
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}

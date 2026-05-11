@@ -8,7 +8,6 @@ import {
   deleteSession,
 } from "../api";
 import type { Session, SessionSet, Exercise } from "../types";
-import { formatDate } from "../utils";
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +22,24 @@ export default function SessionPage() {
   const [inputs, setInputs] = useState<
     Record<string, { reps: string; weight: string }>
   >({});
+
+  const [elapsed, setElapsed] = useState(0);
+
+  useEffect(() => {
+    if (!isLive) return;
+    const interval = setInterval(() => {
+      setElapsed((prev) => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isLive]);
+
+  const formatElapsed = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
   useEffect(() => {
     fetchSession();
@@ -108,10 +125,16 @@ export default function SessionPage() {
   };
 
   if (loading)
-    return <div className="h-full bg-gray-900 text-white p-6">Loading...</div>;
+    return (
+      <div className="h-full text-white p-6" style={{ background: "#0B0810" }}>
+        Loading...
+      </div>
+    );
   if (!session)
     return (
-      <div className="h-full bg-gray-900 text-white p-6">Session not found</div>
+      <div className="h-full text-white p-6" style={{ background: "#0B0810" }}>
+        Session not found
+      </div>
     );
 
   const exerciseMap = new Map<string, { id: string; name: string }>();
@@ -130,66 +153,188 @@ export default function SessionPage() {
       : Array.from(exerciseMap.values());
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900 text-white p-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          {isLive ? (
-            <button
-              onClick={handleGoBack}
-              className="text-gray-400 hover:text-white cursor-pointer"
-            >
-              ← Discard
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/history")}
-              className="text-gray-400 hover:text-white cursor-pointer"
-            >
-              ← History
-            </button>
-          )}
-          <div>
-            <h1 className="text-xl font-bold">Today's Workout</h1>
-            <p className="text-sm text-gray-400">{formatDate(session.date)}</p>
+    <div
+      className="h-full overflow-y-auto text-white"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+        radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+        radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, oklch(0.6 0.2 280) 16%, transparent), transparent 60%)
+      `,
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-32">
+        <div className="flex items-center gap-3 mb-6">
+          <button
+            onClick={isLive ? handleGoBack : () => navigate("/history")}
+            className="flex items-center justify-center cursor-pointer shrink-0"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 12,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "white",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M15 6l-6 6 6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          <div className="flex-1">
+            {isLive && (
+              <p
+                className="text-xs font-bold tracking-widest uppercase flex items-center gap-1.5"
+                style={{ color: "#E8E1D3" }}
+              >
+                <span
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: 3,
+                    background: "#E8E1D3",
+                    display: "inline-block",
+                    animation: "pulse 1.5s ease-in-out infinite",
+                  }}
+                />
+                Live workout
+              </p>
+            )}
+            <h1 className="text-lg font-extrabold tracking-tight mt-0.5">
+              {session.template_id
+                ? templateExercises[0]?.name
+                  ? "Today's Workout"
+                  : "Today's Workout"
+                : "Workout"}
+            </h1>
           </div>
+          {isLive && (
+            <div
+              className="font-mono text-sm font-bold px-3 py-1.5 rounded-xl"
+              style={{
+                background: "color-mix(in oklab, #E8E1D3 14%, transparent)",
+                border:
+                  "1px solid color-mix(in oklab, #E8E1D3 30%, transparent)",
+                color: "#E8E1D3",
+              }}
+            >
+              {formatElapsed(elapsed)}
+            </div>
+          )}
         </div>
-
-        {isLive && (
-          <p className="text-gray-400 text-sm mb-6">
-            Log your sets for today's workout.
-          </p>
-        )}
-
         {/* Exercises */}
-        <div className="flex flex-col gap-6">
-          {exercises.map((exercise) => {
+        <div className="flex flex-col gap-3">
+          {exercises.map((exercise, idx) => {
             const sets = getExerciseSets(exercise.id);
-            const input = inputs[exercise.id] ?? { reps: 8, weight: 0 };
+            const input = inputs[exercise.id] ?? { reps: "8", weight: "0" };
+            const templateEx = templateExercises.find(
+              (e) => e.id === exercise.id,
+            );
+            const complete = templateEx
+              ? sets.length >= templateEx.target_sets
+              : false;
 
             return (
-              <div key={exercise.id} className="bg-gray-800 rounded-lg p-4">
-                <h3 className="font-bold text-lg mb-3">{exercise.name}</h3>
+              <div
+                key={exercise.id}
+                className="rounded-2xl p-4 overflow-hidden"
+                style={{
+                  background: complete
+                    ? "linear-gradient(180deg, color-mix(in oklab, #E8E1D3 12%, rgba(20,16,28,0.6)), rgba(20,16,28,0.6))"
+                    : "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+                  border: complete
+                    ? "1px solid color-mix(in oklab, #E8E1D3 35%, transparent)"
+                    : "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                {/* Exercise header */}
+                <div className="flex items-center gap-3 mb-3">
+                  <div
+                    className="flex items-center justify-center font-extrabold text-xs shrink-0"
+                    style={{
+                      width: 26,
+                      height: 26,
+                      borderRadius: 13,
+                      background: complete
+                        ? "#E8E1D3"
+                        : "rgba(255,255,255,0.06)",
+                      color: complete ? "#0B0810" : "rgba(255,255,255,0.5)",
+                    }}
+                  >
+                    {complete ? (
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M5 12.5l4.5 4.5L19 7.5"
+                          stroke="currentColor"
+                          strokeWidth="2.4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    ) : (
+                      idx + 1
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-extrabold tracking-tight">
+                      {exercise.name}
+                    </p>
+                    {templateEx && (
+                      <p
+                        className="text-xs mt-0.5"
+                        style={{ color: "rgba(255,255,255,0.5)" }}
+                      >
+                        Target {templateEx.target_sets} ×{" "}
+                        {templateEx.target_reps} reps
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                {/* Logged stats */}
+                {/* Logged set pills */}
                 {sets.length > 0 && (
-                  <div className="mb-3 flex flex-col gap-1">
-                    {sets.map((set) => (
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    {sets.map((set, i) => (
                       <div
                         key={set.id}
-                        className="flex items-center justify-between text-sm bg-gray-700 rounded px-3 py-2"
+                        className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-lg"
+                        style={{
+                          background: `linear-gradient(180deg, color-mix(in oklab, #E8E1D3 22%, transparent), color-mix(in oklab, #E8E1D3 8%, transparent))`,
+                          border:
+                            "1px solid color-mix(in oklab, #E8E1D3 40%, transparent)",
+                        }}
                       >
-                        <span className="text-gray-400">
-                          Set {set.set_number}
+                        <span style={{ opacity: 0.5, fontSize: 9 }}>
+                          S{i + 1}
                         </span>
-                        <span className="font-bold">
-                          {set.weight}kg × {set.reps} reps
-                        </span>
+                        <span>{set.weight}</span>
+                        <span style={{ opacity: 0.4, fontSize: 9 }}>×</span>
+                        <span>{set.reps}</span>
                         {isLive && (
                           <button
                             onClick={() => handleDeleteSet(set.id)}
-                            className="text-red-400 hover:text-red-300 cursor-pointer"
+                            className="cursor-pointer ml-0.5"
+                            style={{ color: "rgba(255,255,255,0.5)" }}
                           >
-                            ✕
+                            <svg width="7" height="7" viewBox="0 0 10 10">
+                              <path
+                                d="M2 2l6 6M8 2l-6 6"
+                                stroke="currentColor"
+                                strokeWidth="1.8"
+                                strokeLinecap="round"
+                              />
+                            </svg>
                           </button>
                         )}
                       </div>
@@ -197,47 +342,99 @@ export default function SessionPage() {
                   </div>
                 )}
 
-                {/* Input for next set */}
+                {/* Steppers + log button */}
                 {isLive && (
-                  <div className="flex gap-2 items-end">
-                    <div className="flex-1">
-                      <label className="block text-xs text-gray-400 mb-1">
-                        Weight (kg)
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={input.weight}
-                        onChange={(e) =>
-                          updateInput(exercise.id, "weight", e.target.value)
-                        }
-                        onFocus={(e) => e.target.select()}
-                        className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
-                        min={0}
-                        step={0.5}
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <label className="block text-xs text-gray-400 mb-1">
-                        Reps
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={input.reps}
-                        onChange={(e) =>
-                          updateInput(exercise.id, "reps", e.target.value)
-                        }
-                        onFocus={(e) => e.target.select()}
-                        className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white text-center text-lg font-bold"
-                        min={1}
-                      />
-                    </div>
+                  <div className="flex gap-2">
+                    {(["weight", "reps"] as const).map((field) => (
+                      <div
+                        key={field}
+                        className="flex-1 flex items-center rounded-xl px-2 py-1.5"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.06)",
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            const current =
+                              parseFloat(
+                                String(input[field]).replace(",", "."),
+                              ) || 0;
+                            const next =
+                              field === "weight"
+                                ? Math.max(
+                                    0,
+                                    Math.round((current - 2.5) * 2) / 2,
+                                  )
+                                : Math.max(1, current - 1);
+                            updateInput(exercise.id, field, String(next));
+                          }}
+                          className="cursor-pointer font-bold text-lg w-7 h-7 flex items-center justify-center rounded-lg shrink-0"
+                          style={{
+                            background: "rgba(255,255,255,0.05)",
+                            color: "white",
+                          }}
+                        >
+                          −
+                        </button>
+                        <div className="flex-1 text-center">
+                          <p className="font-extrabold text-lg tracking-tight">
+                            {input[field]}
+                          </p>
+                          <p
+                            className="text-xs font-bold uppercase tracking-widest"
+                            style={{
+                              color: "rgba(255,255,255,0.4)",
+                              fontSize: 8,
+                            }}
+                          >
+                            {field === "weight" ? "kg" : "reps"}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const current =
+                              parseFloat(
+                                String(input[field]).replace(",", "."),
+                              ) || 0;
+                            const next =
+                              field === "weight"
+                                ? Math.round((current + 2.5) * 2) / 2
+                                : current + 1;
+                            updateInput(exercise.id, field, String(next));
+                          }}
+                          className="cursor-pointer font-bold text-lg w-7 h-7 flex items-center justify-center rounded-lg shrink-0"
+                          style={{
+                            background: "rgba(255,255,255,0.05)",
+                            color: "white",
+                          }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    ))}
                     <button
                       onClick={() => handleLogSet(exercise.id)}
-                      className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+                      className="flex items-center justify-center rounded-xl cursor-pointer shrink-0"
+                      style={{
+                        width: 50,
+                        background: "#E8E1D3",
+                        color: "#0B0810",
+                      }}
                     >
-                      + Set
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path
+                          d="M12 5v14M5 12h14"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                        />
+                      </svg>
                     </button>
                   </div>
                 )}
@@ -247,26 +444,62 @@ export default function SessionPage() {
         </div>
 
         {exercises.length === 0 && (
-          <div className="bg-gray-800 rounded-lg p-6 text-center">
-            <p className="text-gray-400">No exercises logged yet.</p>
-            <p className="text-sm text-gray-500 mt-1">
-              This session was started from a template - exercises will appear
-              here as you log sets.
-            </p>
+          <div
+            className="rounded-xl p-6 text-center"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015))",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            <p style={{ color: "rgba(255,255,255,0.4)" }}>No exercises yet.</p>
           </div>
         )}
       </div>
       {isLive && (
-        <div className="mt-8 pb-6">
-          <button
-            onClick={() => {
-              localStorage.removeItem("liveSessionId");
-              navigate("/dashboard");
-            }}
-            className="block w-full py-3 bg-green-600 hover:bg-green-700 rounded font-bold text-center cursor-pointer"
-          >
-            Finish Workout ✓
-          </button>
+        <div
+          className="fixed left-0 right-0 bottom-0 px-4 py-4"
+          style={{
+            background: "rgba(11,8,16,0.85)",
+            backdropFilter: "blur(20px)",
+            borderTop: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div className="max-w-2xl mx-auto flex items-center justify-between">
+            <div>
+              <p className="font-extrabold text-sm">
+                {session.sets?.length ?? 0} sets ·{" "}
+                {session.sets
+                  ?.reduce((a, s) => a + s.weight * s.reps, 0)
+                  .toLocaleString() ?? 0}
+                <span
+                  className="text-xs ml-0.5"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  kg
+                </span>
+              </p>
+              <p
+                className="text-xs font-bold uppercase tracking-widest mt-0.5"
+                style={{ color: "rgba(255,255,255,0.45)" }}
+              >
+                session total
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                localStorage.removeItem("liveSessionId");
+                navigate("/dashboard");
+              }}
+              className="py-3 px-5 rounded-xl font-extrabold cursor-pointer tracking-tight"
+              style={{
+                background: "#E8E1D3",
+                color: "#0B0810",
+              }}
+            >
+              Finish Workout ✓
+            </button>
+          </div>
         </div>
       )}
     </div>

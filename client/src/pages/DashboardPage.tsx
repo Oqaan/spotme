@@ -139,8 +139,8 @@ export default function DashboardPage() {
       style={{
         background: "#0B0810",
         backgroundImage: `
-    radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #B458FF 22%, transparent), transparent 55%),
-    radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, oklch(0.6 0.2 280) 16%, transparent), transparent 60%)
+    radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+    radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, #E8E1D3 16%, transparent), transparent 60%)
   `,
       }}
     >
@@ -150,9 +150,8 @@ export default function DashboardPage() {
           className="rounded-2xl p-4 mb-4 overflow-hidden relative"
           style={{
             background:
-              "linear-gradient(180deg, color-mix(in oklab, #B458FF 12%, rgba(20,16,28,0.6)), rgba(20,16,28,0.6))",
-            border: "1px solid color-mix(in oklab, #B458FF 35%, transparent)",
-            boxShadow: "0 0 30px color-mix(in oklab, #B458FF 20%, transparent)",
+              "linear-gradient(180deg, color-mix(in oklab, #E8E1D3 12%, rgba(20,16,28,0.6)), rgba(20,16,28,0.6))",
+            border: "1px solid color-mix(in oklab, #E8E1D3 35%, transparent)",
           }}
         >
           <div className="flex justify-between items-start">
@@ -180,9 +179,7 @@ export default function DashboardPage() {
               <p
                 className="text-4xl font-extrabold"
                 style={{
-                  color: "#B458FF",
-                  textShadow:
-                    "0 0 16px color-mix(in oklab, #B458FF 70%, transparent)",
+                  color: "#E8E1D3",
                 }}
               >
                 {streak}
@@ -221,7 +218,7 @@ export default function DashboardPage() {
                   <span
                     className="font-bold"
                     style={{
-                      color: isToday ? "#B458FF" : "rgba(255,255,255,0.35)",
+                      color: isToday ? "#E8E1D3" : "rgba(255,255,255,0.35)",
                       fontSize: 9,
                     }}
                   >
@@ -233,15 +230,14 @@ export default function DashboardPage() {
                       height: 10,
                       borderRadius: 5,
                       background: isDone
-                        ? "#B458FF"
+                        ? "#E8E1D3"
                         : isToday && !isDone
                           ? "transparent"
                           : isFuture
                             ? "rgba(255,255,255,0.1)"
                             : "rgba(255,255,255,0.1)",
                       border:
-                        isToday && !isDone ? "1.5px solid #B458FF" : "none",
-                      boxShadow: isDone ? "0 0 8px #B458FF" : "none",
+                        isToday && !isDone ? "1.5px solid #E8E1D3" : "none",
                     }}
                   />
                 </div>
@@ -292,9 +288,7 @@ export default function DashboardPage() {
               onClick={() => setSelectedTemplate(upNext)}
               className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
               style={{
-                background: "#B458FF",
-                boxShadow:
-                  "0 0 20px color-mix(in oklab, #B458FF 80%, transparent)",
+                background: "#E8E1D3",
               }}
             >
               <svg
@@ -324,7 +318,7 @@ export default function DashboardPage() {
             <Link
               to="/templates"
               className="text-sm font-bold hover:underline"
-              style={{ color: "#B458FF" }}
+              style={{ color: "#E8E1D3" }}
             >
               Manage
             </Link>
@@ -346,7 +340,7 @@ export default function DashboardPage() {
               <Link
                 to="/templates"
                 className="px-4 py-2 rounded font-bold"
-                style={{ background: "#B458FF", color: "#0B0810" }}
+                style={{ background: "#E8E1D3", color: "#0B0810" }}
               >
                 Create your split
               </Link>
@@ -372,8 +366,7 @@ export default function DashboardPage() {
                       left: 0,
                       height: 3,
                       width: "40%",
-                      background:
-                        "linear-gradient(90deg, #B458FF, oklch(0.6 0.22 280))",
+                      background: "#E8E1D3",
                     }}
                   />
                   {template.day_of_week && (
@@ -415,7 +408,7 @@ export default function DashboardPage() {
             <Link
               to="/friends"
               className="text-sm font-bold"
-              style={{ color: "#B458FF" }}
+              style={{ color: "#E8E1D3" }}
             >
               See all →
             </Link>
@@ -440,7 +433,7 @@ export default function DashboardPage() {
                   <Link
                     to="/friends"
                     className="px-4 py-2 rounded font-bold"
-                    style={{ background: "#B458FF", color: "#0B0810" }}
+                    style={{ background: "#E8E1D3", color: "#0B0810" }}
                   >
                     Add your gym buddy
                   </Link>
@@ -467,9 +460,8 @@ export default function DashboardPage() {
                   <div
                     className="w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shrink-0"
                     style={{
-                      background:
-                        "linear-gradient(135deg, oklch(0.65 0.18 280), oklch(0.4 0.16 280))",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.12)",
                     }}
                   >
                     {item.user_name.charAt(0).toUpperCase()}
@@ -486,7 +478,7 @@ export default function DashboardPage() {
                   </div>
                   <span
                     className="text-sm font-bold cursor-pointer shrink-0"
-                    style={{ color: "#B458FF" }}
+                    style={{ color: "#E8E1D3" }}
                     onClick={() => navigate(`/session/${item.session_id}`)}
                   >
                     View →
@@ -507,10 +499,9 @@ export default function DashboardPage() {
             className="w-full rounded-t-2xl p-6 max-h-[80vh] overflow-y-auto"
             style={{
               background:
-                "linear-gradient(180deg, rgba(30,20,40,0.98), rgba(11,8,16,0.98))",
+                "linear-gradient(180deg, rgba(20,18,16,0.98), rgba(11,8,16,0.98))",
               border: "1px solid rgba(255,255,255,0.08)",
               borderBottom: "none",
-              boxShadow: `0 0 60px color-mix(in oklab, #B458FF 20%, transparent)`,
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -525,7 +516,7 @@ export default function DashboardPage() {
                     navigate(`/templates/${selectedTemplate.id}`);
                   }}
                   className="text-sm font-bold cursor-pointer"
-                  style={{ color: "#B458FF" }}
+                  style={{ color: "#E8E1D3" }}
                 >
                   Edit
                 </button>
@@ -578,11 +569,8 @@ export default function DashboardPage() {
               }}
               className="w-full py-3 rounded-xl font-extrabold cursor-pointer tracking-tight"
               style={{
-                background:
-                  "linear-gradient(135deg, #B458FF, oklch(0.55 0.25 320))",
+                background: "#E8E1D3",
                 color: "#0B0810",
-                boxShadow:
-                  "0 0 24px color-mix(in oklab, #B458FF 60%, transparent)",
               }}
             >
               Start Workout

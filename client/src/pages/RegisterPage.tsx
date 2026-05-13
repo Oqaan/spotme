@@ -74,7 +74,7 @@ export default function RegisterPage() {
               placeholder="Your name"
               required
               maxLength={20}
-              className="w-full px-4 py-4 rounded-2xl text-sm text-white focus:outline-none"
+              className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
               style={{
                 background: "rgba(255,255,255,0.06)",
                 border: "1px solid rgba(255,255,255,0.08)",
@@ -102,7 +102,7 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="your@email.com"
             required
-            className="w-full px-4 py-4 rounded-2xl text-sm text-white focus:outline-none"
+            className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
             style={{
               background: "rgba(255,255,255,0.06)",
               border: "1px solid rgba(255,255,255,0.08)",
@@ -125,7 +125,7 @@ export default function RegisterPage() {
               placeholder="At least 6 characters"
               required
               maxLength={32}
-              className="w-full px-4 py-4 pr-20 rounded-2xl text-sm text-white focus:outline-none"
+              className="w-full px-4 py-4 pr-20 rounded-2xl text-base text-white focus:outline-none"
               style={{
                 background: "rgba(255,255,255,0.06)",
                 border: "1px solid rgba(255,255,255,0.08)",

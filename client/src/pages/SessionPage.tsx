@@ -163,7 +163,7 @@ export default function SessionPage() {
       `,
       }}
     >
-      <div className="max-w-2xl mx-auto px-4 pt-4 pb-32">
+      <div className="max-w-2xl mx-auto px-4 pt-4 pb-4">
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={isLive ? handleGoBack : () => navigate("/history")}

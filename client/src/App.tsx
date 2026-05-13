@@ -24,7 +24,10 @@ export default function App() {
       <AuthProvider>
         <div className="h-dvh flex flex-col overflow-hidden">
           <Navbar />
-          <div className="flex-1 overflow-hidden">
+          <div
+            className="flex-1 overflow-hidden"
+            style={{ paddingTop: 56, paddingBottom: 64 }}
+          >
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />

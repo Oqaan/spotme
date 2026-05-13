@@ -144,7 +144,7 @@ export default function DashboardPage() {
   `,
       }}
     >
-      <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto px-4 pt-14 pb-28">
+      <div className="max-w-4xl mx-auto w-full flex-1 overflow-y-auto px-4 pt-4 pb-4">
         {/* Hero card */}
         <div
           className="rounded-2xl p-4 mb-4 overflow-hidden relative"

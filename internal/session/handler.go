@@ -147,16 +147,6 @@ func (h *Handler) DeleteSet(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func (h *Handler) GetStreak(w http.ResponseWriter, r *http.Request) {
-	userID := middleware.GetUserID(r)
-	streak, err := h.svc.GetStreak(r.Context(), userID)
-	if err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to fetch streak")
-		return
-	}
-	respondJSON(w, http.StatusOK, map[string]int{"streak": streak})
-}
-
 func (h *Handler) GetWeek(w http.ResponseWriter, r *http.Request) {
 	userID := middleware.GetUserID(r)
 	dates, err := h.svc.GetWeek(r.Context(), userID)

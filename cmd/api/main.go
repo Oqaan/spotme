@@ -82,7 +82,6 @@ func main() {
 		r.Post("/api/sessions", sessionH.CreateSession)
 		r.Get("/api/sessions/{id}", sessionH.GetSession)
 		r.Delete("/api/sessions/{id}", sessionH.DeleteSession)
-		r.Get("/api/sessions/streak", sessionH.GetStreak)
 		r.Get("/api/sessions/week", sessionH.GetWeek)
 
 		// Sets

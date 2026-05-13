@@ -7,7 +7,6 @@ import {
   createSession,
   getFriends,
   deleteSession,
-  getStreak,
   getWeek,
 } from "../api";
 import type { Template, FeedItem, Friendship } from "../types";
@@ -20,7 +19,6 @@ export default function DashboardPage() {
   const [feed, setFeed] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [friends, setFriends] = useState<Friendship[]>([]);
-  const [streak, setStreak] = useState(0);
   const [weekDates, setWeekDates] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null,
@@ -35,18 +33,15 @@ export default function DashboardPage() {
 
     const fetchData = async () => {
       try {
-        const [templatesRes, feedRes, friendsRes, streakRes, weekRes] =
-          await Promise.all([
-            getTemplates(),
-            getFeed(),
-            getFriends(),
-            getStreak(),
-            getWeek(),
-          ]);
+        const [templatesRes, feedRes, friendsRes, weekRes] = await Promise.all([
+          getTemplates(),
+          getFeed(),
+          getFriends(),
+          getWeek(),
+        ]);
         setTemplates(templatesRes.data ?? []);
         setFeed(feedRes.data ?? []);
         setFriends(friendsRes.data ?? []);
-        setStreak(streakRes.data.streak ?? 0);
         setWeekDates(weekRes.data.dates ?? []);
       } catch {
         console.error("Failed to fetch dashboard data");
@@ -178,17 +173,21 @@ export default function DashboardPage() {
             <div className="text-right">
               <p
                 className="text-4xl font-extrabold"
-                style={{
-                  color: "#E8E1D3",
-                }}
+                style={{ color: "#E8E1D3" }}
               >
-                {streak}
+                {weekDates.length}
+                <span
+                  className="text-xl"
+                  style={{ color: "rgba(255,255,255,0.35)" }}
+                >
+                  /{new Set(templates.map(t => t.day_of_week).filter(Boolean)).size}
+                </span>
               </p>
               <p
                 className="text-xs font-bold tracking-widest uppercase"
                 style={{ color: "rgba(255,255,255,0.45)" }}
               >
-                day streak
+                this week
               </p>
             </div>
           </div>

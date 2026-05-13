@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "../assets/logo.svg?react";
+import axios from "axios";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -10,6 +13,7 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -18,62 +22,145 @@ export default function RegisterPage() {
     try {
       await register(email, password, name);
       navigate("/dashboard");
-    } catch {
-      setError("Email already registered");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError("Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-900 text-white flex items-center justify-center p-4">
-      <div className="w-full max-w-sm p-6 bg-gray-800 rounded-lg">
-        <h1 className="text-2xl font-bold text-orange-400 mb-1">SpotMe</h1>
-        <h2 className="text-lg mb-4">Create Account</h2>
-        {error && <p className="text-red-400 mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block mb-1 text-sm">Name</label>
+    <div className="fixed inset-0 bg-[#0d0d0d] text-white flex flex-col px-6 pt-12 pb-8">
+      {/* Logo */}
+      <div className="flex items-center gap-3 mb-12">
+        <div
+          className="w-10 h-10 rounded-xl flex items-center justify-center"
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <Logo width={24} height={24} fill="#E8E1D3" />
+        </div>
+        <span
+          className="text-sm font-bold tracking-widest uppercase"
+          style={{ color: "#E8E1D3" }}
+        >
+          SpotMe
+        </span>
+      </div>
+      <h1 className="text-4xl font-bold text-white mb-2">Create account.</h1>
+      <p className="text-sm mb-10" style={{ color: "rgba(255,255,255,0.5)" }}>
+        Start tracking your gains.
+      </p>
+      {error && <p className="text-red-400 mb-4">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <div className="flex flex-col gap-2 mb-5">
+          <label
+            className="text-[11px] font-bold tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+          >
+            Name
+          </label>
+          <div className="relative">
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
+              placeholder="Your name"
               required
+              maxLength={20}
+              className="w-full px-4 py-4 rounded-2xl text-sm text-white focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             />
+            <span
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[11px]"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            >
+              {name.length}/20
+            </span>
           </div>
-          <div className="mb-4">
-            <label className="block mb-1 text-sm">Email</label>
+        </div>
+
+        <div className="flex flex-col gap-2 mb-5">
+          <label
+            className="text-[11px] font-bold tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="your@email.com"
+            required
+            className="w-full px-4 py-4 rounded-2xl text-sm text-white focus:outline-none"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 mb-8">
+          <label
+            className="text-[11px] font-bold tracking-widest uppercase"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+          >
+            Password
+          </label>
+          <div className="relative">
             <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
-              required
-            />
-          </div>
-          <div className="mb-6">
-            <label className="block mb-1 text-sm">Password</label>
-            <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
+              placeholder="At least 6 characters"
               required
+              maxLength={32}
+              className="w-full px-4 py-4 pr-20 rounded-2xl text-sm text-white focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             />
+            <span
+              className="absolute right-10 top-1/2 -translate-y-1/2 text-[11px]"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            >
+              {password.length}/32
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer"
+              style={{ color: "rgba(255,255,255,0.3)" }}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
-          >
-            {loading ? "Creating account..." : "Register"}
-          </button>
-        </form>
-        <p className="mt-4 text-sm text-gray-400">
+        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full py-4 rounded-2xl font-bold cursor-pointer text-sm"
+          style={{ background: "#E8E1D3", color: "#0B0810" }}
+        >
+          {loading ? "Creating account..." : "Create account"}
+        </button>
+      </form>
+      <div className="mt-auto text-center">
+        <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
           Already have an account?{" "}
-          <Link to="/login" className="text-orange-400 hover:underline">
-            Login
+          <Link to="/login" className="font-bold" style={{ color: "#E8E1D3" }}>
+            Log in
           </Link>
         </p>
       </div>

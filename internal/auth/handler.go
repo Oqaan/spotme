@@ -24,12 +24,12 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid email")
 		return
 	}
-	if len(req.Password) < 6 || len(req.Password) > 72 {
-		respondError(w, http.StatusBadRequest, "password must be between 6 and 72 characters")
+	if len(req.Password) < 6 || len(req.Password) > 32 {
+		respondError(w, http.StatusBadRequest, "password must be between 6 and 32 characters")
 		return
 	}
-	if len(req.Name) == 0 || len(req.Name) > 50 {
-		respondError(w, http.StatusBadRequest, "name must be between 1 and 50 characters")
+	if len(req.Name) == 0 || len(req.Name) > 20 {
+		respondError(w, http.StatusBadRequest, "name must be between 1 and 20 characters")
 		return
 	}
 	res, err := h.svc.Register(r.Context(), req)
@@ -54,7 +54,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusBadRequest, "invalid email")
 		return
 	}
-	if len(req.Password) == 0 || len(req.Password) > 72 {
+	if len(req.Password) < 6 || len(req.Password) > 32 {
 		respondError(w, http.StatusBadRequest, "invalid password")
 		return
 	}

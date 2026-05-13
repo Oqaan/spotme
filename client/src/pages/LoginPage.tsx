@@ -28,7 +28,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0d0d0d] text-white flex flex-col px-6 pt-12 pb-8">
+    <div
+      className="fixed inset-0 text-white flex flex-col px-6 pt-12 pb-8"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+    radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+    radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, #E8E1D3 16%, transparent), transparent 60%)
+  `,
+      }}
+    >
       {/* Logo */}
       <div className="flex items-center gap-3 mb-12">
         <div

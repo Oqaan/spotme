@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { getAccount, updateName, updatePassword, deleteAccount } from "../api";
+import { Trash2 } from "lucide-react";
 
 export default function SettingsPage() {
   const { logout, updateDisplayName } = useAuth();
@@ -31,7 +32,6 @@ export default function SettingsPage() {
     try {
       await updateName(newName);
       updateDisplayName(newName);
-      setNewName("");
       setNameSuccess("Name updated!");
     } catch {
       setNameError("Failed to update name");
@@ -63,117 +63,291 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900 text-white p-6">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Settings</h1>
+    <div
+      className="h-full overflow-y-auto text-white"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+      radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+      radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, #E8E1D3 16%, transparent), transparent 60%)
+    `,
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-10">
+        <h1 className="text-2xl font-extrabold tracking-tight mb-6 text-center">
+          Settings
+        </h1>
 
-        {/* Account Info */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <h2 className="font-bold mb-1">Account</h2>
-          <p className="text-gray-400 text-sm">Email: {email}</p>
+        {/* Profile header card */}
+        <div
+          className="rounded-2xl p-4 mb-6 flex items-center gap-4"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 text-xl font-extrabold"
+            style={{ background: "#E8E1D3", color: "#0B0810" }}
+          >
+            {newName ? newName.charAt(0).toUpperCase() : email.charAt(0).toUpperCase()}
+          </div>
+          <div className="flex flex-col gap-2">
+            <p className="font-extrabold text-lg leading-none">
+              {newName || "—"}
+            </p>
+            <p className="text-sm" style={{ color: "rgba(255,255,255,0.5)" }}>
+              {email}
+            </p>
+          </div>
         </div>
 
-        {/* Update Name */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <h2 className="font-bold mb-3">Display Name</h2>
+        {/* Account */}
+        <p
+          className="text-[11px] font-bold tracking-widest uppercase mb-2"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Account
+        </p>
+        <div
+          className="rounded-2xl mb-6 overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div className="flex items-center justify-between px-4 py-4">
+            <span className="text-sm font-bold">Email</span>
+            <span
+              className="text-sm"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              {email}
+            </span>
+          </div>
+        </div>
+
+        {/* Display Name */}
+        <p
+          className="text-[11px] font-bold tracking-widest uppercase mb-2"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Display Name
+        </p>
+        <div
+          className="rounded-2xl p-4 mb-6"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
           <form onSubmit={handleUpdateName} className="flex flex-col gap-3">
             <input
               type="text"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
               required
+              className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             />
             {nameError && <p className="text-red-400 text-sm">{nameError}</p>}
             {nameSuccess && (
-              <p className="text-green-400 text-sm">{nameSuccess}</p>
+              <p className="text-sm" style={{ color: "#E8E1D3" }}>
+                {nameSuccess}
+              </p>
             )}
             <button
               type="submit"
-              className="py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+              className="w-full py-4 rounded-2xl font-bold text-sm cursor-pointer"
+              style={{ background: "#E8E1D3", color: "#0B0810" }}
             >
-              Update Name
+              Update name
             </button>
           </form>
         </div>
 
-        {/* Update Password */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <h2 className="font-bold mb-3">Change Password</h2>
+        {/* Change Password */}
+        <p
+          className="text-[11px] font-bold tracking-widest uppercase mb-2"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          Change Password
+        </p>
+        <div
+          className="rounded-2xl p-4 mb-6"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
           <form onSubmit={handleUpdatePassword} className="flex flex-col gap-3">
-            <input
-              type="password"
-              placeholder="Current Password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-              required
-            />
-            <input
-              type="password"
-              placeholder="New password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
-              required
-            />
+            <div className="flex flex-col gap-2">
+              <label
+                className="text-[11px] font-bold tracking-widest uppercase"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                Current Password
+              </label>
+              <input
+                type="password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+                className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <label
+                className="text-[11px] font-bold tracking-widest uppercase"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                New Password
+              </label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+            </div>
             {passwordError && (
               <p className="text-red-400 text-sm">{passwordError}</p>
             )}
             {passwordSuccess && (
-              <p className="text-green-400 text-sm">{passwordSuccess}</p>
+              <p className="text-sm" style={{ color: "#E8E1D3" }}>
+                {passwordSuccess}
+              </p>
             )}
             <button
               type="submit"
-              className="py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+              className="w-full py-4 rounded-2xl font-bold text-sm cursor-pointer"
+              style={{
+                background: "transparent",
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.7)",
+              }}
             >
-              Update Password
+              Update password
             </button>
           </form>
         </div>
 
         {/* About */}
-        <div className="bg-gray-800 rounded-lg p-4 mb-6">
-          <h2 className="font-bold mb-2">About</h2>
-          <p className="text-sm text-gray-400">SpotMe v1.0</p>
-          <a
-            href="https://github.com/Oqaan/spotme"
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-orange-400 hover:underline"
+        <p
+          className="text-[11px] font-bold tracking-widest uppercase mb-2"
+          style={{ color: "rgba(255,255,255,0.4)" }}
+        >
+          About
+        </p>
+        <div
+          className="rounded-2xl mb-6 overflow-hidden"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div
+            className="flex items-center justify-between px-4 py-4"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
           >
-            github.com/Oqaan/spotme
-          </a>
+            <span className="text-sm font-bold">Version</span>
+            <span
+              className="text-sm"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              SpotMe v1.0
+            </span>
+          </div>
+          <div className="flex items-center justify-between px-4 py-4">
+            <span className="text-sm font-bold">Source</span>
+            <a
+              href="https://github.com/itsYuuuka/spotme"
+              target="_blank"
+              rel="noreferrer"
+              className="text-sm"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+            >
+              github.com/itsYuuuka/spotme →
+            </a>
+          </div>
         </div>
 
-        {/* Delete Account */}
-        <div className="bg-gray-800 rounded-lg p-4 border border-red-800">
-          <h2 className="font-bold mb-2 text-red-400">Danger Zone</h2>
-          <p className="text-sm text-gray-400 mb-3">
-            Deleting your account is permanent and cannot be undone.
+        {/* Danger Zone */}
+        <p
+          className="text-[11px] font-bold tracking-widest uppercase mb-2"
+          style={{ color: "#D08B7E" }}
+        >
+          Danger Zone
+        </p>
+        <div
+          className="rounded-2xl p-4"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(208,139,126,0.25)",
+          }}
+        >
+          <p className="text-sm mb-1 font-bold" style={{ color: "#D08B7E" }}>
+            Delete account
+          </p>
+          <p
+            className="text-sm mb-4"
+            style={{ color: "rgba(255,255,255,0.4)" }}
+          >
+            Permanently erases your workouts, templates and history. This can't
+            be undone.
           </p>
           {!showDeleteConfirm ? (
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded font-bold cursor-pointer"
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-bold cursor-pointer"
+              style={{
+                border: "1px solid rgba(208,139,126,0.4)",
+                color: "#D08B7E",
+                background: "transparent",
+              }}
             >
-              Delete Account
+              <Trash2 size={16} />
+              Delete account
             </button>
           ) : (
             <div className="flex flex-col gap-3">
-              <p className="text-red-400 font-bold">
-                Are you sure you want to delete your account?
+              <p className="text-sm font-bold" style={{ color: "#D08B7E" }}>
+                Are you sure? This cannot be undone.
               </p>
-              <div>
+              <div className="flex gap-3">
                 <button
                   onClick={handleDeleteAccount}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded font-bold cursor-pointer"
+                  className="flex-1 py-3 rounded-2xl text-sm font-bold cursor-pointer"
+                  style={{ background: "#D08B7E", color: "#0B0810" }}
                 >
-                  Yes, delete my account
+                  Yes, delete
                 </button>
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded font-bold cursor-pointer"
+                  className="flex-1 py-3 rounded-2xl text-sm font-bold cursor-pointer"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.15)",
+                    color: "rgba(255,255,255,0.6)",
+                    background: "transparent",
+                  }}
                 >
                   Cancel
                 </button>

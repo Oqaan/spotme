@@ -37,152 +37,206 @@ export default function ProgressPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Progress</h1>
+    <div
+      className="h-full overflow-y-auto text-white"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+          radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+      radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, #E8E1D3 16%, transparent), transparent 60%)
+        `,
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-10">
+        <h1 className="text-4xl font-extrabold tracking-tight mb-1">
+          Progress.
+        </h1>
 
         {loading ? (
-          <p className="text-gray-400">Loading...</p>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Loading...
+          </p>
         ) : exercises.length === 0 ? (
-          <p className="text-gray-400">
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
             No progress data yet. Log some workouts first!
           </p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Exercise list */}
-            <div className="flex flex-col gap-2">
-              <h2 className="text-sm font-bold text-gray-400 uppercase mb-2">
-                Exercises
-              </h2>
-              {exercises.map((ex) => (
-                <div key={ex.exercise_id} className="flex flex-col">
-                  <button
-                    onClick={() => handleSelect(ex.exercise_id)}
-                    className={`text-left px-4 py-3 rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
-                      selected?.exercise_id === ex.exercise_id
-                        ? "bg-orange-500 text-white rounded-b-none"
-                        : "bg-gray-800 hover:bg-gray-700 text-gray-300"
-                    }`}
-                  >
-                    <span>{ex.exercise_name}</span>
-                    <span className="text-sm">
-                      {selected?.exercise_id === ex.exercise_id ? "▲" : "▼"}
-                    </span>
-                  </button>
+          <div className="flex flex-col gap-3">
+            <p
+              className="text-[11px] font-bold tracking-widest uppercase mb-1"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              Recent PRs · {exercises.length}
+            </p>
+            {exercises.map((ex) => {
+              const history = ex.history ?? [];
+              const latest = history[history.length - 1];
+              const first = history[0];
+              const diff =
+                latest && first ? latest.max_weight - first.max_weight : 0;
+              const isSelected = selected?.exercise_id === ex.exercise_id;
 
-                  {selected?.exercise_id === ex.exercise_id && (
-                    <div className="bg-gray-700 rounded-b-lg px-4 py-3 flex flex-col gap-2 md:hidden">
-                      {selected.history.length === 0 ? (
-                        <p className="text-gray-400 text-sm">No data yet.</p>
+              return (
+                <div key={ex.exercise_id}>
+                  <div
+                    onClick={() => handleSelect(ex.exercise_id)}
+                    className="rounded-2xl p-4 flex items-center justify-between cursor-pointer"
+                    style={{
+                      background:
+                        "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      borderRadius: isSelected ? "16px 16px 0 0" : 16,
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                        style={{
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                        }}
+                      >
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <rect
+                            x="2"
+                            y="9"
+                            width="2.5"
+                            height="6"
+                            rx="1"
+                            fill="currentColor"
+                          />
+                          <rect
+                            x="5"
+                            y="7"
+                            width="2.5"
+                            height="10"
+                            rx="1"
+                            fill="currentColor"
+                          />
+                          <rect
+                            x="16.5"
+                            y="7"
+                            width="2.5"
+                            height="10"
+                            rx="1"
+                            fill="currentColor"
+                          />
+                          <rect
+                            x="19.5"
+                            y="9"
+                            width="2.5"
+                            height="6"
+                            rx="1"
+                            fill="currentColor"
+                          />
+                          <rect
+                            x="7.5"
+                            y="11"
+                            width="9"
+                            height="2"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-bold text-sm">{ex.exercise_name}</p>
+                        <p
+                          className="text-xs mt-0.5"
+                          style={{ color: "rgba(255,255,255,0.4)" }}
+                        >
+                          {latest ? formatDate(latest.date) : "No data"}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-extrabold text-sm">
+                        {latest?.max_weight ?? "—"}
+                        <span
+                          className="text-xs font-normal ml-0.5"
+                          style={{ color: "rgba(255,255,255,0.4)" }}
+                        >
+                          kg
+                        </span>
+                      </p>
+                      {diff > 0 && (
+                        <p
+                          className="text-xs font-bold"
+                          style={{ color: "#E8E1D3" }}
+                        >
+                          +{diff.toFixed(1)}kg
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {isSelected && (
+                    <div
+                      className="rounded-b-2xl overflow-hidden"
+                      style={{
+                        background:
+                          "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        borderTop: "none",
+                      }}
+                    >
+                      {(selected.history ?? []).length === 0 ? (
+                        <p
+                          className="text-sm px-4 py-3"
+                          style={{ color: "rgba(255,255,255,0.4)" }}
+                        >
+                          No data yet.
+                        </p>
                       ) : (
-                        <>
-                          {selected.history.map((dp, index) => (
+                        [...(selected.history ?? [])]
+                          .reverse()
+                          .map((dp, index) => (
                             <div
                               key={index}
-                              className="flex items-center justify-between bg-gray-800 rounded-lg px-3 py-2"
+                              className="flex items-center justify-between px-4 py-3"
+                              style={{
+                                borderBottom:
+                                  index < (selected.history ?? []).length - 1
+                                    ? "1px solid rgba(255,255,255,0.04)"
+                                    : "none",
+                              }}
                             >
-                              <span className="text-sm text-gray-400">
+                              <span
+                                className="text-xs"
+                                style={{ color: "rgba(255,255,255,0.4)" }}
+                              >
                                 {formatDate(dp.date)}
                               </span>
-                              <div className="flex gap-4 text-sm">
-                                <span className="font-bold text-orange-400">
+                              <div className="flex gap-4 text-xs">
+                                <span
+                                  className="font-bold"
+                                  style={{ color: "#E8E1D3" }}
+                                >
                                   {dp.max_weight}kg
                                 </span>
-                                <span className="text-gray-300">
+                                <span
+                                  style={{ color: "rgba(255,255,255,0.5)" }}
+                                >
                                   {dp.total_reps} reps
                                 </span>
-                                <span className="text-gray-400">
+                                <span
+                                  style={{ color: "rgba(255,255,255,0.4)" }}
+                                >
                                   {dp.sets} sets
                                 </span>
                               </div>
                             </div>
-                          ))}
-                          {selected.history.length > 1 && (
-                            <div className="mt-1 text-sm">
-                              {selected.history[selected.history.length - 1]
-                                .max_weight > selected.history[0].max_weight ? (
-                                <p className="text-green-400">
-                                  ↑ PR: +
-                                  {(
-                                    selected.history[
-                                      selected.history.length - 1
-                                    ].max_weight -
-                                    selected.history[0].max_weight
-                                  ).toFixed(1)}
-                                  kg since first session
-                                </p>
-                              ) : (
-                                <p className="text-gray-400">Keep pushing!</p>
-                              )}
-                            </div>
-                          )}
-                        </>
+                          ))
                       )}
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-
-            {/* Progress detail */}
-            <div className="hidden md:block md:col-span-2">
-              {!selected ? (
-                <div className="bg-gray-800 rounded-lg p-6 text-center">
-                  <p className="text-gray-400">
-                    Select an exercise to see your progress
-                  </p>
-                </div>
-              ) : (
-                <div className="bg-gray-800 rounded-lg p-6">
-                  <h2 className="text-xl font-bold mb-4">
-                    {selected.exercise_name}
-                  </h2>
-                  {selected.history.length === 0 ? (
-                    <p className="text-gray-400">No data yet.</p>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      {selected.history.map((dp, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center justify-between bg-gray-700 rounded-lg px-4 py-3"
-                        >
-                          <span className="text-sm text-gray-400">
-                            {formatDate(dp.date)}
-                          </span>
-                          <div className="flex gap-6 text-sm">
-                            <span className="font-bold text-orange-400">
-                              {dp.max_weight}
-                            </span>
-                            <span className="text-gray-300">
-                              {dp.total_reps}
-                            </span>
-                            <span className="text-gray-400">{dp.sets}</span>
-                          </div>
-                        </div>
-                      ))}
-                      {/* PR indicator */}
-                      {selected.history.length > 1 && (
-                        <div className="mt-2 text-sm text-gray-400">
-                          {selected.history[selected.history.length - 1]
-                            .max_weight > selected.history[0].max_weight ? (
-                            <p className="text-green-400">
-                              ↑ PR: +
-                              {(
-                                selected.history[selected.history.length - 1]
-                                  .max_weight - selected.history[0].max_weight
-                              ).toFixed(1)}
-                              kg since first session
-                            </p>
-                          ) : (
-                            <p className="text-gray-400">Keep pushing!</p>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
+              );
+            })}
           </div>
         )}
       </div>

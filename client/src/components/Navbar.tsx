@@ -19,6 +19,7 @@ export default function Navbar() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
+  const isLiveSession = location.pathname.startsWith("/session");
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -89,7 +90,7 @@ export default function Navbar() {
     },
   ];
 
-  if (!isLoggedIn) return null;
+  if (!isLoggedIn || isLiveSession) return null;
 
   return (
     <>

@@ -18,6 +18,7 @@ export default function SessionPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isLive = searchParams.get("mode") === "live";
+  const from = searchParams.get("from");
 
   // Per exercise input state
   const [inputs, setInputs] = useState<
@@ -167,7 +168,12 @@ export default function SessionPage() {
       <div className="max-w-2xl mx-auto px-4 pt-4 pb-4">
         <div className="flex items-center gap-3 mb-6">
           <button
-            onClick={isLive ? handleGoBack : () => navigate("/history")}
+            onClick={
+              isLive
+                ? handleGoBack
+                : () =>
+                    navigate(from === "dashboard" ? "/dashboard" : "/history")
+            }
             className="flex items-center justify-center cursor-pointer shrink-0 text-xs font-bold px-3"
             style={{
               height: 36,

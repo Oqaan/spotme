@@ -404,13 +404,6 @@ export default function DashboardPage() {
             <h2 className="text-xl font-extrabold tracking-tight">
               Friend Activity
             </h2>
-            <Link
-              to="/friends"
-              className="text-sm font-bold"
-              style={{ color: "#E8E1D3" }}
-            >
-              See all →
-            </Link>
           </div>
           {feed.length === 0 ? (
             <div
@@ -478,7 +471,7 @@ export default function DashboardPage() {
                   <span
                     className="text-sm font-bold cursor-pointer shrink-0"
                     style={{ color: "#E8E1D3" }}
-                    onClick={() => navigate(`/session/${item.session_id}`)}
+                    onClick={() => navigate(`/session/${item.session_id}?from=dashboard`)}
                   >
                     View →
                   </span>

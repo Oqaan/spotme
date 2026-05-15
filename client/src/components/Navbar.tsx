@@ -1,13 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { getFriends } from "../api";
 import Logo from "../assets/logo.svg?react";
+import {
+  Home,
+  Dumbbell,
+  History,
+  TrendingUp,
+  Users,
+  Settings,
+  LogOut,
+} from "lucide-react";
 
 export default function Navbar() {
-  const { isLoggedIn, logout, name } = useAuth();
+  const { isLoggedIn, logout, name, token } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    getFriends()
+      .then((res) => {
+        const currentUserId = getUserIdFromToken(token);
+        const pending = (res.data ?? []).filter(
+          (f) => f.status === "pending" && f.friend_id === currentUserId,
+        );
+        setPendingCount(pending.length);
+      })
+      .catch(() => {});
+  }, [isLoggedIn, location.pathname]);
+
+  const getUserIdFromToken = (token: string | null): string | null => {
+    if (!token) return null;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      return payload.sub ?? null;
+    } catch {
+      return null;
+    }
+  };
 
   const handleLogout = () => {
     logout();
@@ -19,53 +53,38 @@ export default function Navbar() {
     {
       to: "/dashboard",
       label: "Home",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M3 12L12 3l9 9M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <Home size={22} />,
     },
     {
       to: "/templates",
       label: "Split",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <rect x="2" y="9" width="2.5" height="6" rx="1" fill="currentColor"/>
-          <rect x="5" y="7" width="2.5" height="10" rx="1" fill="currentColor"/>
-          <rect x="16.5" y="7" width="2.5" height="10" rx="1" fill="currentColor"/>
-          <rect x="19.5" y="9" width="2.5" height="6" rx="1" fill="currentColor"/>
-          <rect x="7.5" y="11" width="9" height="2" fill="currentColor"/>
-        </svg>
-      ),
+      icon: <Dumbbell size={22} />,
     },
     {
       to: "/history",
       label: "History",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8"/>
-          <path d="M12 7v5l3 3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-        </svg>
-      ),
+      icon: <History size={22} />,
     },
     {
       to: "/progress",
       label: "Progress",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M3 17l4-4 4 4 4-6 4 2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      ),
+      icon: <TrendingUp size={22} />,
     },
     {
       to: "/friends",
       label: "Friends",
       icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="9" cy="7" r="3" stroke="currentColor" strokeWidth="1.8"/>
-          <path d="M3 20c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          <path d="M16 11c1.657 0 3 1.343 3 3M19 20c0-2.209-1.343-4-3-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-        </svg>
+        <div className="relative">
+          <Users size={22} />
+          {pendingCount > 0 && (
+            <div
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold"
+              style={{ background: "#E8E1D3", color: "#0B0810" }}
+            >
+              {pendingCount}
+            </div>
+          )}
+        </div>
       ),
     },
   ];
@@ -74,6 +93,51 @@ export default function Navbar() {
 
   return (
     <>
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-50"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
+      {menuOpen && (
+        <div
+          className="fixed right-4 top-14 rounded-xl overflow-hidden py-1"
+          style={{
+            width: 160,
+            background: "rgba(20,18,16,0.98)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            backdropFilter: "blur(20px)",
+            zIndex: 60,
+          }}
+        >
+          <Link
+            to="/settings"
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-3 px-4 py-3 text-sm font-bold cursor-pointer"
+            style={{ color: "rgba(255,255,255,0.8)" }}
+          >
+            <Settings size={16} />
+            Settings
+          </Link>
+          <div
+            style={{
+              height: 1,
+              background: "rgba(255,255,255,0.06)",
+              margin: "0 12px",
+            }}
+          />
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold cursor-pointer"
+            style={{ color: "#ff6b6b" }}
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
+        </div>
+      )}
+
       {/* Top bar */}
       <div
         className="fixed top-0 left-0 right-0 z-40 px-4 flex items-center justify-between"
@@ -88,60 +152,16 @@ export default function Navbar() {
           <Logo className="h-7 w-7" style={{ color: "#E8E1D3" }} />
         </Link>
 
-        <div className="relative">
-          <button
-            onClick={() => setMenuOpen((o) => !o)}
-            className="w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-sm cursor-pointer"
-            style={{
-              background: "linear-gradient(135deg, #E8E1D3, #C9C2B4)",
-              color: "#0B0810",
-            }}
-          >
-            {name?.charAt(0).toUpperCase()}
-          </button>
-
-          {menuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => setMenuOpen(false)}
-              />
-              <div
-                className="absolute right-0 top-10 z-50 rounded-xl overflow-hidden py-1"
-                style={{
-                  width: 160,
-                  background: "rgba(20,18,16,0.98)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  backdropFilter: "blur(20px)",
-                }}
-              >
-                <Link
-                  to="/settings"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-bold cursor-pointer"
-                  style={{ color: "rgba(255,255,255,0.8)" }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="1.8"/>
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" strokeWidth="1.8"/>
-                  </svg>
-                  Settings
-                </Link>
-                <div style={{ height: 1, background: "rgba(255,255,255,0.06)", margin: "0 12px" }} />
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold cursor-pointer"
-                  style={{ color: "#ff6b6b" }}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Logout
-                </button>
-              </div>
-            </>
-          )}
-        </div>
+        <button
+          onClick={() => setMenuOpen((o) => !o)}
+          className="w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-sm cursor-pointer"
+          style={{
+            background: "linear-gradient(135deg, #E8E1D3, #C9C2B4)",
+            color: "#0B0810",
+          }}
+        >
+          {name?.charAt(0).toUpperCase()}
+        </button>
       </div>
 
       {/* Bottom tab bar */}
@@ -165,7 +185,9 @@ export default function Navbar() {
                 style={{ color: active ? "#E8E1D3" : "rgba(255,255,255,0.35)" }}
               >
                 {tab.icon}
-                <span className="text-xs font-bold tracking-wide">{tab.label}</span>
+                <span className="text-xs font-bold tracking-wide">
+                  {tab.label}
+                </span>
               </Link>
             );
           })}

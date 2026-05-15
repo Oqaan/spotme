@@ -25,58 +25,226 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Pencil, Trash2 } from "lucide-react";
+import { SquarePen, Trash2, Plus, X, GripVertical } from "lucide-react";
 
 function SortableExercise({
   exercise,
   index,
   onDelete,
+  onEdit,
 }: {
   exercise: Exercise;
   index: number;
   onDelete: (id: string) => void;
+  onEdit: (
+    id: string,
+    data: {
+      name: string;
+      target_sets: number;
+      target_reps: number;
+      notes: string;
+      is_timed: boolean;
+    },
+  ) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: exercise.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const [confirm, setConfirm] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [exName, setExName] = useState(exercise.name);
+  const [targetSets, setTargetSets] = useState(exercise.target_sets);
+  const [targetReps, setTargetReps] = useState(exercise.target_reps);
+  const [notes, setNotes] = useState(exercise.notes);
+  const [isTimed, setIsTimed] = useState(exercise.is_timed);
 
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className="bg-gray-800 rounded-lg p-4 flex items-center justify-between"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        background:
+          "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+        border: "1px solid rgba(255,255,255,0.08)",
+        borderRadius: 16,
+        padding: 16,
+      }}
     >
-      <div className="flex items-center gap-3">
-        <button
-          {...attributes}
-          {...listeners}
-          className="text-gray-500 hover:text-gray-300 cursor-grab active:cursor-grabbing touch-none"
-        >
-          ⠿
-        </button>
-        <div>
-          <p className="font-bold">
-            {index + 1}. {exercise.name}
-          </p>
-          <p className="text-sm text-gray-400">
-            {exercise.target_sets} sets ×{" "}
-            {exercise.is_timed
-              ? `${exercise.target_reps}s`
-              : `${exercise.target_reps} reps`}
-            {exercise.notes && ` — ${exercise.notes}`}
-          </p>
+      {editing ? (
+        <div className="flex flex-col gap-3">
+          <input
+            type="text"
+            value={exName}
+            onChange={(e) => setExName(e.target.value)}
+            className="w-full px-4 py-3 rounded-2xl text-base text-white focus:outline-none"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          />
+          <div className="flex gap-3">
+            <div className="flex-1 flex flex-col gap-2">
+              <label
+                className="text-[11px] font-bold tracking-widest uppercase"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                Sets
+              </label>
+              <input
+                type="number"
+                value={targetSets}
+                onChange={(e) => setTargetSets(Number(e.target.value))}
+                min={1}
+                className="w-full px-4 py-3 rounded-2xl text-base text-white focus:outline-none"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+            </div>
+            <div className="flex-1 flex flex-col gap-2">
+              <label
+                className="text-[11px] font-bold tracking-widest uppercase"
+                style={{ color: "rgba(255,255,255,0.5)" }}
+              >
+                Reps
+              </label>
+              <input
+                type="number"
+                value={targetReps}
+                onChange={(e) => setTargetReps(Number(e.target.value))}
+                min={1}
+                className="w-full px-4 py-3 rounded-2xl text-base text-white focus:outline-none"
+                style={{
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+            </div>
+          </div>
+          <input
+            type="text"
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full px-4 py-3 rounded-2xl text-base text-white focus:outline-none"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
+          />
+          <label
+            className="flex items-center gap-2 text-sm cursor-pointer"
+            style={{ color: "rgba(255,255,255,0.6)" }}
+          >
+            <input
+              type="checkbox"
+              checked={isTimed}
+              onChange={(e) => setIsTimed(e.target.checked)}
+            />
+            Timed exercise
+          </label>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                onEdit(exercise.id, {
+                  name: exName,
+                  target_sets: targetSets,
+                  target_reps: targetReps,
+                  notes,
+                  is_timed: isTimed,
+                });
+                setEditing(false);
+              }}
+              className="flex-1 py-3 rounded-2xl font-bold text-sm cursor-pointer"
+              style={{ background: "#E8E1D3", color: "#0B0810" }}
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="flex-1 py-3 rounded-2xl font-bold text-sm cursor-pointer"
+              style={{
+                border: "1px solid rgba(255,255,255,0.15)",
+                color: "rgba(255,255,255,0.6)",
+                background: "transparent",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-      </div>
-      <button
-        onClick={() => onDelete(exercise.id)}
-        className="p-2 text-red-400 hover:text-red-300 cursor-pointer"
-      >
-        <Trash2 size={16} />
-      </button>
+      ) : (
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing touch-none shrink-0"
+            style={{ color: "rgba(255,255,255,0.25)" }}
+          >
+            <GripVertical size={16} />
+          </button>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm">
+              {index + 1}. {exercise.name}
+            </p>
+            <p
+              className="text-xs mt-0.5"
+              style={{ color: "rgba(255,255,255,0.4)" }}
+            >
+              {exercise.target_sets} ×{" "}
+              {exercise.is_timed
+                ? `${exercise.target_reps}s`
+                : `${exercise.target_reps} reps`}
+              {exercise.notes && ` · ${exercise.notes}`}
+            </p>
+          </div>
+          {!confirm && (
+            <button
+              onClick={() => setEditing(true)}
+              className="cursor-pointer shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                color: "rgba(255,255,255,0.6)",
+              }}
+            >
+              Edit
+            </button>
+          )}
+          {confirm ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onDelete(exercise.id)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
+                style={{ background: "#D08B7E", color: "#0B0810" }}
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirm(false)}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  color: "rgba(255,255,255,0.6)",
+                  background: "transparent",
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirm(true)}
+              className="cursor-pointer shrink-0"
+              style={{ color: "#D08B7E" }}
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -102,6 +270,38 @@ export default function TemplatePage() {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  const handleEditExercise = async (
+    exerciseId: string,
+    data: {
+      name: string;
+      target_sets: number;
+      target_reps: number;
+      notes: string;
+      is_timed: boolean;
+    },
+  ) => {
+    if (!id) return;
+    try {
+      const res = await updateExercise(id, exerciseId, {
+        ...data,
+        order_index:
+          template?.exercises?.findIndex((e) => e.id === exerciseId) ?? 0,
+      });
+      setTemplate((prev) =>
+        prev
+          ? {
+              ...prev,
+              exercises: prev.exercises?.map((e) =>
+                e.id === exerciseId ? res.data : e,
+              ),
+            }
+          : prev,
+      );
+    } catch {
+      console.error("Failed to update exercise");
+    }
+  };
 
   const handleUpdateName = async () => {
     if (!id) return;
@@ -210,35 +410,56 @@ export default function TemplatePage() {
 
   if (loading)
     return (
-      <div className="h-full bg-gray-900 text-white p-6">Loading...</div>
+      <div className="h-full text-white p-6" style={{ background: "#0B0810" }}>
+        Loading...
+      </div>
     );
   if (!template)
     return (
-      <div className="h-full bg-gray-900 text-white p-6">
+      <div className="h-full text-white p-6" style={{ background: "#0B0810" }}>
         Template not found.
       </div>
     );
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-900 text-white p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
-          <Link to="/templates" className="text-gray-400 hover:text-white">
-            ← Back
+    <div
+      className="h-full overflow-y-auto text-white"
+      style={{
+        background: "#0B0810",
+        backgroundImage: `
+      radial-gradient(140% 80% at 100% 0%, color-mix(in oklab, #E8E1D3 22%, transparent), transparent 55%),
+      radial-gradient(80% 50% at -10% 100%, color-mix(in oklab, #E8E1D3 16%, transparent), transparent 60%)
+    `,
+      }}
+    >
+      <div className="max-w-2xl mx-auto px-4 pt-6 pb-10">
+        <div className="flex items-center gap-3 mb-6">
+          <Link
+            to="/templates"
+            className="flex items-center justify-center cursor-pointer shrink-0 text-xs font-bold px-3"
+            style={{
+              height: 36,
+              borderRadius: 12,
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              color: "rgba(255,255,255,0.5)",
+            }}
+          >
+            Back
           </Link>
-          <div className="h-9 flex items-center">
+          <div className="flex-1 min-w-0">
             {editingName ? (
               <input
                 type="text"
                 value={newTemplateName}
                 onChange={(e) => setNewTemplateName(e.target.value)}
                 onBlur={handleUpdateName}
-                className="bg-transparent text-white font-bold text-2xl outline-none w-48 leading-none p-0"
                 autoFocus
                 maxLength={20}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleUpdateName();
                 }}
+                className="bg-transparent text-white font-extrabold text-2xl outline-none w-full"
               />
             ) : (
               <button
@@ -246,30 +467,35 @@ export default function TemplatePage() {
                   setNewTemplateName(template.name);
                   setEditingName(true);
                 }}
-                className="flex items-center gap-2 hover:text-orange-400 cursor-pointer group"
+                className="flex items-center gap-2 cursor-pointer"
               >
-                <h1 className="text-2xl font-bold">{template.name}</h1>
-                <Pencil
-                  size={16}
-                  className="text-gray-500 group-hover:text-orange-400"
+                <h1 className="text-2xl font-extrabold tracking-tight">
+                  {template.name}
+                </h1>
+                <SquarePen
+                  size={14}
+                  style={{ color: "rgba(255,255,255,0.3)" }}
                 />
               </button>
             )}
+            {template.day_of_week && (
+              <p
+                className="text-xs mt-0.5"
+                style={{ color: "rgba(255,255,255,0.4)" }}
+              >
+                {template.day_of_week}
+              </p>
+            )}
           </div>
-          {!editingName && template.day_of_week && (
-            <span className="text-sm text-gray-400">
-              {template.day_of_week}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold">Exercises</h2>
           <button
             onClick={() => setShowForm(!showForm)}
-            className="px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+            className="flex items-center justify-center w-9 h-9 rounded-xl cursor-pointer shrink-0"
+            style={{
+              background: showForm ? "rgba(255,255,255,0.1)" : "#E8E1D3",
+              color: showForm ? "rgba(255,255,255,0.7)" : "#0B0810",
+            }}
           >
-            {showForm ? "Cancel" : "+ Add Exercise"}
+            {showForm ? <X size={16} /> : <Plus size={16} />}
           </button>
         </div>
 
@@ -277,39 +503,62 @@ export default function TemplatePage() {
         {showForm && (
           <form
             onSubmit={handleAddExercise}
-            className="bg-gray-800 rounded-lg p-4 mb-6 flex flex-col gap-3"
+            className="rounded-2xl p-4 mb-6 flex flex-col gap-3"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+              border: "1px solid rgba(255,255,255,0.08)",
+            }}
           >
             <input
               type="text"
-              placeholder="Exercise Name"
+              placeholder="Exercise name"
               value={exName}
               onChange={(e) => setExName(e.target.value)}
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
               required
+              className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             />
             <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="block text-sm text-gray-400 mb-1">
-                  Target Sets
+              <div className="flex-1 flex flex-col gap-2">
+                <label
+                  className="text-[11px] font-bold tracking-widest uppercase"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  Sets
                 </label>
                 <input
                   type="number"
                   value={targetSets}
                   onChange={(e) => setTargetSets(Number(e.target.value))}
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
                   min={1}
+                  className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
                 />
               </div>
-              <div className="flex-1">
-                <label className="block text-sm text-gray-400 mb-1">
-                  Target Reps
+              <div className="flex-1 flex flex-col gap-2">
+                <label
+                  className="text-[11px] font-bold tracking-widest uppercase"
+                  style={{ color: "rgba(255,255,255,0.5)" }}
+                >
+                  Reps
                 </label>
                 <input
                   type="number"
                   value={targetReps}
                   onChange={(e) => setTargetReps(Number(e.target.value))}
-                  className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white"
                   min={1}
+                  className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
                 />
               </div>
             </div>
@@ -318,28 +567,38 @@ export default function TemplatePage() {
               placeholder="Notes (optional)"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white"
+              className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
             />
-            <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <label
+              className="flex items-center gap-2 text-sm cursor-pointer"
+              style={{ color: "rgba(255,255,255,0.6)" }}
+            >
               <input
                 type="checkbox"
                 checked={isTimed}
                 onChange={(e) => setIsTimed(e.target.checked)}
               />
-              Timed exercise (seconds instead of reps)
+              Timed exercise
             </label>
             <button
               type="submit"
-              className="py-2 bg-orange-500 hover:bg-orange-600 rounded font-bold cursor-pointer"
+              className="w-full py-4 rounded-2xl font-bold text-sm cursor-pointer"
+              style={{ background: "#E8E1D3", color: "#0B0810" }}
             >
-              Add Exercise
+              Add exercise
             </button>
           </form>
         )}
 
         {/* Exercises list */}
         {!template.exercises || template.exercises.length === 0 ? (
-          <p className="text-gray-400">No exercises yet. Add your first one!</p>
+          <p className="text-sm" style={{ color: "rgba(255,255,255,0.4)" }}>
+            No exercises yet. Add your first one!
+          </p>
         ) : (
           <DndContext
             sensors={sensors}
@@ -357,6 +616,7 @@ export default function TemplatePage() {
                     exercise={exercise}
                     index={index}
                     onDelete={handleDeleteExercise}
+                    onEdit={handleEditExercise}
                   />
                 ))}
               </div>

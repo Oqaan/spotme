@@ -20,10 +20,11 @@ func NewService(db *pgxpool.Pool) *Service {
 
 func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, error) {
 	rows, err := s.db.Query(ctx, `
-		SELECT id, user_id, template_id, date::text, notes
-		FROM sessions
-		WHERE user_id = $1
-		ORDER BY created_at DESC
+    	SELECT s.id, s.user_id, s.template_id, s.date::text, s.notes, COALESCE(t.name, '') as template_name
+    	FROM sessions s
+    	LEFT JOIN workout_templates t ON t.id = s.template_id
+    	WHERE s.user_id = $1
+    	ORDER BY s.created_at DESC
 	`, userID)
 	if err != nil {
 		return nil, err
@@ -34,7 +35,7 @@ func (s *Service) GetSessions(ctx context.Context, userID string) ([]Session, er
 	for rows.Next() {
 		var s Session
 		var templateID *string
-		if err := rows.Scan(&s.ID, &s.UserID, &templateID, &s.Date, &s.Notes); err != nil {
+		if err := rows.Scan(&s.ID, &s.UserID, &templateID, &s.Date, &s.Notes, &s.TemplateName); err != nil {
 			return nil, err
 		}
 		if templateID != nil {

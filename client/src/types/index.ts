@@ -28,6 +28,7 @@ export interface Session {
   id: string;
   user_id: string;
   template_id: string;
+  template_name: string;
   date: string;
   notes: string;
   sets?: SessionSet[];

@@ -1,12 +1,13 @@
 package session
 
 type Session struct {
-	ID         string       `json:"id"`
-	UserID     string       `json:"user_id"`
-	TemplateID string       `json:"template_id"`
-	Date       string       `json:"date"`
-	Notes      string       `json:"notes"`
-	Sets       []SessionSet `json:"sets,omitempty"`
+	ID           string       `json:"id"`
+	UserID       string       `json:"user_id"`
+	TemplateID   string       `json:"template_id"`
+	TemplateName string       `json:"template_name"`
+	Date         string       `json:"date"`
+	Notes        string       `json:"notes"`
+	Sets         []SessionSet `json:"sets,omitempty"`
 }
 
 type SessionSet struct {

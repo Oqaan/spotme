@@ -40,7 +40,7 @@ func getVisitor(ip string) *rate.Limiter {
 	defer mu.Unlock()
 	v, exists := visitors[ip]
 	if !exists {
-		limiter := rate.NewLimiter(rate.Every(time.Second), 10)
+		limiter := rate.NewLimiter(rate.Every(time.Second), 20)
 		visitors[ip] = &visitor{limiter, time.Now()}
 		return limiter
 	}
@@ -56,6 +56,7 @@ func RateLimit(next http.Handler) http.Handler {
 		}
 		limiter := getVisitor(ip)
 		if !limiter.Allow() {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			http.Error(w, `{"error":"too many requests"}`, http.StatusTooManyRequests)
 			return
 		}

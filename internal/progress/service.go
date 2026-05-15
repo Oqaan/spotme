@@ -58,12 +58,17 @@ func (s *Service) GetExerciseProgress(ctx context.Context, exerciseID, userID st
 
 func (s *Service) GetAllProgress(ctx context.Context, userID string) ([]ExerciseProgress, error) {
 	rows, err := s.db.Query(ctx, `
-		SELECT DISTINCT ss.exercise_id, te.name
-		FROM session_sets ss
-		JOIN sessions s ON s.id = ss.session_id
-		JOIN template_exercises te ON te.id = ss.exercise_id
-		WHERE s.user_id = $1
-	`, userID)
+    SELECT DISTINCT ON (ss.exercise_id)
+        ss.exercise_id,
+        te.name,
+        s.date::text,
+        MAX(ss.weight) OVER (PARTITION BY ss.exercise_id, s.date) AS max_weight
+    FROM session_sets ss
+    JOIN sessions s ON s.id = ss.session_id
+    JOIN template_exercises te ON te.id = ss.exercise_id
+    WHERE s.user_id = $1
+    ORDER BY ss.exercise_id, s.date DESC
+`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -72,9 +77,11 @@ func (s *Service) GetAllProgress(ctx context.Context, userID string) ([]Exercise
 	var exercises []ExerciseProgress
 	for rows.Next() {
 		var p ExerciseProgress
-		if err := rows.Scan(&p.ExerciseID, &p.ExerciseName); err != nil {
+		var dp DataPoint
+		if err := rows.Scan(&p.ExerciseID, &p.ExerciseName, &dp.Date, &dp.MaxWeight); err != nil {
 			return nil, err
 		}
+		p.History = []DataPoint{dp}
 		exercises = append(exercises, p)
 	}
 	return exercises, rows.Err()

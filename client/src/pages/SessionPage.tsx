@@ -259,11 +259,7 @@ export default function SessionPage() {
                       color: complete ? "#0B0810" : "rgba(255,255,255,0.5)",
                     }}
                   >
-                    {complete ? (
-                      <Check size={12} strokeWidth={2.4} />
-                    ) : (
-                      idx + 1
-                    )}
+                    {complete ? <Check size={12} strokeWidth={2.4} /> : idx + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-extrabold tracking-tight">
@@ -349,10 +345,47 @@ export default function SessionPage() {
                         >
                           <Minus size={16} />
                         </button>
-                        <div className="flex-1 text-center">
-                          <p className="font-extrabold text-lg tracking-tight">
-                            {input[field]}
-                          </p>
+                        <div className="flex-1 min-w-0 text-center">
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            value={input[field]}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              if (val === "") {
+                                updateInput(exercise.id, field, val);
+                                return;
+                              }
+                              if (/^0\d/.test(val)) return;
+                              const num = parseFloat(val);
+                              if (isNaN(num)) return;
+                              const max = field === "weight" ? 500 : 100;
+                              if (num > max) {
+                                updateInput(exercise.id, field, String(max));
+                                return;
+                              }
+                              updateInput(exercise.id, field, val);
+                            }}
+                            onBlur={(e) => {
+                              const val = parseFloat(e.target.value);
+                              if (!e.target.value || isNaN(val)) {
+                                updateInput(
+                                  exercise.id,
+                                  field,
+                                  field === "weight" ? "0" : "1",
+                                );
+                              } else if (field === "weight" && val > 500) {
+                                updateInput(exercise.id, field, "500");
+                              } else if (field === "reps" && val > 100) {
+                                updateInput(exercise.id, field, "100");
+                              } else {
+                                updateInput(exercise.id, field, String(val));
+                              }
+                            }}
+                            onFocus={(e) => e.target.select()}
+                            max={field === "weight" ? 500 : 100}
+                            className="w-12 text-center font-extrabold text-base tracking-tight bg-transparent focus:outline-none text-white"
+                          />
                           <p
                             className="text-xs font-bold uppercase tracking-widest"
                             style={{

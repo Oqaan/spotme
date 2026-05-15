@@ -8,6 +8,7 @@ import {
   deleteSession,
 } from "../api";
 import type { Session, SessionSet, Exercise } from "../types";
+import { Check, X, Plus, Minus } from "lucide-react";
 
 export default function SessionPage() {
   const { id } = useParams<{ id: string }>();
@@ -167,25 +168,16 @@ export default function SessionPage() {
         <div className="flex items-center gap-3 mb-6">
           <button
             onClick={isLive ? handleGoBack : () => navigate("/history")}
-            className="flex items-center justify-center cursor-pointer shrink-0"
+            className="flex items-center justify-center cursor-pointer shrink-0 text-xs font-bold px-3"
             style={{
-              width: 36,
               height: 36,
               borderRadius: 12,
               background: "rgba(255,255,255,0.06)",
               border: "1px solid rgba(255,255,255,0.08)",
-              color: "white",
+              color: "rgba(255,255,255,0.5)",
             }}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M15 6l-6 6 6 6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            {isLive ? "Cancel" : "Back"}
           </button>
           <div className="flex-1">
             {isLive && (
@@ -268,20 +260,7 @@ export default function SessionPage() {
                     }}
                   >
                     {complete ? (
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M5 12.5l4.5 4.5L19 7.5"
-                          stroke="currentColor"
-                          strokeWidth="2.4"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      <Check size={12} strokeWidth={2.4} />
                     ) : (
                       idx + 1
                     )}
@@ -327,14 +306,7 @@ export default function SessionPage() {
                             className="cursor-pointer ml-0.5"
                             style={{ color: "rgba(255,255,255,0.5)" }}
                           >
-                            <svg width="7" height="7" viewBox="0 0 10 10">
-                              <path
-                                d="M2 2l6 6M8 2l-6 6"
-                                stroke="currentColor"
-                                strokeWidth="1.8"
-                                strokeLinecap="round"
-                              />
-                            </svg>
+                            <X size={10} />
                           </button>
                         )}
                       </div>
@@ -375,7 +347,7 @@ export default function SessionPage() {
                             color: "white",
                           }}
                         >
-                          −
+                          <Minus size={16} />
                         </button>
                         <div className="flex-1 text-center">
                           <p className="font-extrabold text-lg tracking-tight">
@@ -409,7 +381,7 @@ export default function SessionPage() {
                             color: "white",
                           }}
                         >
-                          +
+                          <Plus size={16} />
                         </button>
                       </div>
                     ))}
@@ -422,19 +394,7 @@ export default function SessionPage() {
                         color: "#0B0810",
                       }}
                     >
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          d="M12 5v14M5 12h14"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <Plus size={22} />
                     </button>
                   </div>
                 )}

@@ -272,7 +272,7 @@ export default function SettingsPage() {
               className="text-sm"
               style={{ color: "rgba(255,255,255,0.5)" }}
             >
-              SpotMe v1.0
+              SpotMe v2.0
             </span>
           </div>
           <div className="flex items-center justify-between px-4 py-4">

@@ -22,6 +22,12 @@ export default function SessionPage() {
   >([]);
   const [showAddExercise, setShowAddExercise] = useState(false);
   const [newExName, setNewExName] = useState("");
+  const [hiddenExercises, setHiddenExercises] = useState<Set<string>>(
+    new Set(),
+  );
+  const [confirmRemoveExercise, setConfirmRemoveExercise] = useState<
+    string | null
+  >(null);
   const navigate = useNavigate();
   const isLive = searchParams.get("mode") === "live";
   const from = searchParams.get("from");
@@ -173,13 +179,18 @@ export default function SessionPage() {
 
   const templateExerciseIds = new Set(templateExercises.map((e) => e.id));
 
-  const baseExercises = templateExercises.map((e) => ({
-    id: e.id,
-    name: e.name,
-  }));
+  const baseExercises = templateExercises
+    .filter((e) => !hiddenExercises.has(e.id))
+    .filter((e) => isLive || getExerciseSets(e.id).length > 0)
+    .map((e) => ({ id: e.id, name: e.name }));
+
+  const extraExerciseIds = new Set(extraExercises.map((e) => e.id));
 
   const sessionOnlyExercises = Array.from(exerciseMap.values()).filter(
-    (e) => !templateExerciseIds.has(e.id),
+    (e) =>
+      !templateExerciseIds.has(e.id) &&
+      !hiddenExercises.has(e.id) &&
+      !extraExerciseIds.has(e.id),
   );
 
   const exercises = [
@@ -315,6 +326,65 @@ export default function SessionPage() {
                       </p>
                     )}
                   </div>
+                  {isLive &&
+                    (confirmRemoveExercise === exercise.id ? (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={async () => {
+                            if (
+                              extraExercises.find((e) => e.id === exercise.id)
+                            ) {
+                              setExtraExercises((prev) =>
+                                prev.filter((e) => e.id !== exercise.id),
+                              );
+                            } else {
+                              setHiddenExercises(
+                                (prev) => new Set([...prev, exercise.id]),
+                              );
+                            }
+                            const setsToDelete = getExerciseSets(exercise.id);
+                            for (const set of setsToDelete) {
+                              await deleteSet(id!, set.id);
+                            }
+
+                            setSession((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    sets: prev.sets?.filter(
+                                      (s) => s.exercise_id !== exercise.id,
+                                    ),
+                                  }
+                                : prev,
+                            );
+                            setConfirmRemoveExercise(null);
+                          }}
+                          className="px-3 py-1 rounded-xl text-xs font-bold cursor-pointer"
+                          style={{ background: "#D08B7E", color: "#0B0810" }}
+                        >
+                          Remove
+                        </button>
+                        <button
+                          onClick={() => setConfirmRemoveExercise(null)}
+                          className="px-3 py-1 rounded-xl text-xs font-bold cursor-pointer"
+                          style={{
+                            border: "1px solid rgba(255,255,255,0.15)",
+                            color: "rgba(255,255,255,0.6)",
+                            background: "transparent",
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmRemoveExercise(exercise.id)}
+                        className="cursor-pointer shrink-0"
+                        style={{ color: "rgba(255,255,255,0.25)" }}
+                      >
+                        <X size={14} />
+                      </button>
+                    ))}
                 </div>
 
                 {/* Logged set pills */}

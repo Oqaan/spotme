@@ -160,6 +160,30 @@ func (h *Handler) GetWeek(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, map[string][]string{"dates": dates})
 }
 
+func (h *Handler) AddExerciseToSession(w http.ResponseWriter, r *http.Request) {
+	userID := middleware.GetUserID(r)
+	sessionID := chi.URLParam(r, "id")
+	var req AddExerciseRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		respondError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if len(req.Name) == 0 || len(req.Name) > 50 {
+		respondError(w, http.StatusBadRequest, "exercise name must be between 1 and 50 characters")
+		return
+	}
+	ex, err := h.svc.AddExerciseToSession(r.Context(), sessionID, userID, req)
+	if errors.Is(err, ErrNotFound) {
+		respondError(w, http.StatusNotFound, "session not found")
+		return
+	}
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, "failed to add exercise")
+		return
+	}
+	respondJSON(w, http.StatusCreated, ex)
+}
+
 func respondJSON(w http.ResponseWriter, status int, data any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)

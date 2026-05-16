@@ -198,3 +198,31 @@ func (s *Service) GetWeek(ctx context.Context, userID string) ([]string, error) 
 	}
 	return dates, rows.Err()
 }
+
+func (s *Service) AddExerciseToSession(ctx context.Context, sessionID, userID string, req AddExerciseRequest) (*Exercise, error) {
+	var templateID string
+	err := s.db.QueryRow(ctx,
+		`SELECT template_id FROM sessions WHERE id = $1 AND user_id = $2`,
+		sessionID, userID,
+	).Scan(&templateID)
+	if err != nil {
+		return nil, ErrNotFound
+	}
+
+	var count int
+	s.db.QueryRow(ctx,
+		`SELECT COUNT(*) FROM template_exercises WHERE template_id = $1`,
+		templateID,
+	).Scan(&count)
+
+	var ex Exercise
+	err = s.db.QueryRow(ctx, `
+        INSERT INTO template_exercises (template_id, name, target_sets, target_reps, notes, is_timed, order_index, is_extra)
+        VALUES ($1, $2, 0, 0, '', false, $3, true)
+        RETURNING id, template_id, name, target_sets, target_reps, notes, is_timed, order_index
+    `, templateID, req.Name, count).Scan(&ex.ID, &ex.TemplateID, &ex.Name, &ex.TargetSets, &ex.TargetReps, &ex.Notes, &ex.IsTimed, &ex.OrderIndex)
+	if err != nil {
+		return nil, err
+	}
+	return &ex, nil
+}

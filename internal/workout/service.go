@@ -46,7 +46,7 @@ func (s *Service) GetTemplates(ctx context.Context, userID string) ([]Template, 
 		exRows, err := s.db.Query(ctx, `
 			SELECT id, template_id, name, target_sets, target_reps, notes, is_timed, order_index
 			FROM template_exercises
-			WHERE template_id = $1
+			WHERE template_id = $1 AND (is_extra = false OR is_extra IS NULL)
 			ORDER BY order_index
 		`, t.ID)
 		if err != nil {
@@ -78,7 +78,7 @@ func (s *Service) GetTemplate(ctx context.Context, id, userID string) (*Template
 	rows, err := s.db.Query(ctx, `
 		SELECT id, template_id, name, target_sets, target_reps, notes, is_timed, order_index
 		FROM template_exercises
-		WHERE template_id = $1
+		WHERE template_id = $1 AND (is_extra = false OR is_extra IS NULL)
 		ORDER BY order_index
 	`, id)
 	if err != nil {

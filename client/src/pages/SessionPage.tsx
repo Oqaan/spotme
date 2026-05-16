@@ -6,6 +6,7 @@ import {
   addSet,
   deleteSet,
   deleteSession,
+  addExerciseToSession,
 } from "../api";
 import type { Session, SessionSet, Exercise } from "../types";
 import { Check, X, Plus, Minus } from "lucide-react";
@@ -15,10 +16,31 @@ export default function SessionPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [templateExercises, setTemplateExercises] = useState<Exercise[]>([]);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [extraExercises, setExtraExercises] = useState<
+    { id: string; name: string }[]
+  >([]);
+  const [showAddExercise, setShowAddExercise] = useState(false);
+  const [newExName, setNewExName] = useState("");
+  const navigate = useNavigate();
   const isLive = searchParams.get("mode") === "live";
   const from = searchParams.get("from");
+
+  const handleAddExtraExercise = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!newExName.trim() || !id) return;
+    try {
+      const res = await addExerciseToSession(id, newExName.trim());
+      setExtraExercises((prev) => [
+        ...prev,
+        { id: res.data.id, name: res.data.name },
+      ]);
+      setNewExName("");
+      setShowAddExercise(false);
+    } catch {
+      console.error("Failed to add exercise");
+    }
+  };
 
   // Per exercise input state
   const [inputs, setInputs] = useState<
@@ -149,10 +171,22 @@ export default function SessionPage() {
     }
   });
 
-  const exercises =
-    templateExercises.length > 0
-      ? templateExercises.map((e) => ({ id: e.id, name: e.name }))
-      : Array.from(exerciseMap.values());
+  const templateExerciseIds = new Set(templateExercises.map((e) => e.id));
+
+  const baseExercises = templateExercises.map((e) => ({
+    id: e.id,
+    name: e.name,
+  }));
+
+  const sessionOnlyExercises = Array.from(exerciseMap.values()).filter(
+    (e) => !templateExerciseIds.has(e.id),
+  );
+
+  const exercises = [
+    ...baseExercises,
+    ...sessionOnlyExercises,
+    ...extraExercises,
+  ];
 
   return (
     <div
@@ -441,6 +475,70 @@ export default function SessionPage() {
             );
           })}
         </div>
+
+        {isLive && (
+          <div>
+            {showAddExercise ? (
+              <form
+                onSubmit={handleAddExtraExercise}
+                className="rounded-2xl p-4 flex flex-col gap-3"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              >
+                <input
+                  type="text"
+                  placeholder="Exercise name"
+                  value={newExName}
+                  onChange={(e) => setNewExName(e.target.value)}
+                  required
+                  autoFocus
+                  className="w-full px-4 py-4 rounded-2xl text-base text-white focus:outline-none"
+                  style={{
+                    background: "rgba(255,255,255,0.06)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="flex-1 py-3 rounded-2xl font-bold text-sm cursor-pointer"
+                    style={{ background: "#E8E1D3", color: "#0B0810" }}
+                  >
+                    Add
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAddExercise(false)}
+                    className="flex-1 py-3 rounded-2xl font-bold text-sm cursor-pointer"
+                    style={{
+                      border: "1px solid rgba(255,255,255,0.15)",
+                      color: "rgba(255,255,255,0.6)",
+                      background: "transparent",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <button
+                onClick={() => setShowAddExercise(true)}
+                className="w-full py-3 rounded-2xl font-bold text-sm cursor-pointer flex items-center justify-center gap-2 mt-1"
+                style={{
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "rgba(255,255,255,0.4)",
+                  background: "transparent",
+                }}
+              >
+                <Plus size={16} />
+                Add exercise
+              </button>
+            )}
+          </div>
+        )}
 
         {exercises.length === 0 && (
           <div

@@ -40,3 +40,18 @@ type UpdateSetRequest struct {
 	Weight          *float64 `json:"weight"`
 	DurationSeconds *int     `json:"duration_seconds"`
 }
+
+type AddExerciseRequest struct {
+	Name string `json:"name"`
+}
+
+type Exercise struct {
+	ID         string `json:"id"`
+	TemplateID string `json:"template_id"`
+	Name       string `json:"name"`
+	TargetSets int    `json:"target_sets"`
+	TargetReps int    `json:"target_reps"`
+	Notes      string `json:"notes"`
+	IsTimed    bool   `json:"is_timed"`
+	OrderIndex int    `json:"order_index"`
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../assets/logo.svg?react";
@@ -6,7 +6,7 @@ import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const { register, isLoggedIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +14,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isLoggedIn) navigate("/dashboard");
+  }, [isLoggedIn]);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
